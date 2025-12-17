@@ -1,0 +1,1469 @@
+import Cropper from "react-easy-crop";
+import { useState, FormEvent, ChangeEvent } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import FormField from "./FormField";
+import { toast } from "@/hooks/use-toast";
+import {
+  User,
+  Users,
+  Heart,
+  Calendar,
+  Clock,
+  MapPin,
+  Sparkles,
+  Send,
+  Ruler,
+  Palette,
+  Weight,
+  GraduationCap,
+  Briefcase,
+  IndianRupee,
+  Home,
+  Phone,
+  Plus,
+  X,
+  Star,
+} from "lucide-react";
+
+// Dropdown options
+const NAKSHATRAS = [
+  "अश्विनी",
+  "भरणी",
+  "कृत्तिका",
+  "रोहिणी",
+  "मृगशिरा",
+  "आर्द्रा",
+  "पुनर्वसु",
+  "पुष्य",
+  "आश्लेषा",
+  "मघा",
+  "पूर्वा फाल्गुनी",
+  "उत्तर फाल्गुनी",
+  "हस्त",
+  "चित्रा",
+  "स्वाती",
+  "विशाखा",
+  "अनुराधा",
+  "ज्येष्ठा",
+  "मूल",
+  "पूर्वाषाढ़ा",
+  "उत्तराषाढ़ा",
+  "श्रवण",
+  "धनिष्ठा",
+  "शतभिषा",
+  "पूर्वाभाद्रपद",
+  "उत्तराभाद्रपद",
+  "रेवती",
+];
+
+const CHARANS = ["प्रथम", "द्वितीय", "तृतीय", "चतुर्थ"];
+
+const RASHIS = [
+  "मेष",
+  "वृषभ",
+  "मिथुन",
+  "कर्क",
+  "सिंह",
+  "कन्या",
+  "तुला",
+  "वृश्चिक",
+  "धनु",
+  "मकर",
+  "कुंभ",
+  "मीन",
+];
+
+const NADIS = ["आदि", "मध्य", "अंत्य"];
+
+const PARICHAY_OPTIONS = [
+  { value: "युवक", label: "युवक" },
+  { value: "युवती", label: "युवती" },
+  { value: "विधवा", label: "विधवा" },
+  { value: "विधुर", label: "विधुर" },
+  { value: "परित्यक्ता", label: "परित्यक्ता" },
+  { value: "विकलांग", label: "विकलांग" },
+];
+
+interface FormData {
+  candidateName: string;
+  fatherName: string;
+  motherName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  otherDetails: string;
+  parichay: string;
+  nakshatra: string;
+  charan: string;
+  rashi: string;
+  nadi: string;
+  manglik: string;
+  patrikaRequired: string;
+  height: string;
+  complexion: string;
+  weight: string;
+  gotra: string;
+  nanihal: string;
+  education: string;
+  occupation: string;
+  monthlyIncome: string;
+  fatherOccupation: string;
+  fatherIncome: string;
+  fullAddress: string;
+  tehsil: string;
+  district: string;
+  mobileNumbers: string[];
+  photo: File | null;
+  heightInch: number;
+}
+
+interface FormErrors {
+  [key: string]: string | undefined;
+}
+
+const RegistrationForm = () => {
+  const [formData, setFormData] = useState<FormData>({
+    candidateName: "",
+    fatherName: "",
+    motherName: "",
+    birthDate: "",
+    birthTime: "",
+    birthPlace: "",
+    otherDetails: "",
+    parichay: "",
+    nakshatra: "",
+    charan: "",
+    rashi: "",
+    nadi: "",
+    manglik: "",
+    patrikaRequired: "",
+    height: "",
+    complexion: "",
+    weight: "",
+    gotra: "",
+    nanihal: "",
+    education: "",
+    occupation: "",
+    monthlyIncome: "",
+    fatherOccupation: "",
+    fatherIncome: "",
+    fullAddress: "",
+    tehsil: "",
+    district: "",
+    mobileNumbers: [""],
+    photo: null,
+    heightInch: null,
+  });
+
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [pincode, setPincode] = useState("");
+  const [isFetchingPin, setIsFetchingPin] = useState(false);
+
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [showCropModal, setShowCropModal] = useState(false);
+
+  const [hindiSuggestions, setHindiSuggestions] = useState<string[]>([]);
+  const [activeField, setActiveField] = useState<string | null>(null);
+
+  // Check if text contains English characters
+  const containsEnglish = (text: string): boolean => {
+    return /[a-zA-Z]/.test(text);
+  };
+
+  // Check if text contains only Hindi/Devanagari characters (and spaces/punctuation)
+  const isValidHindi = (text: string): boolean => {
+    if (!text.trim()) return true;
+    return /^[\u0900-\u097F\s\.\,\-\(\)०१२३४५६७८९]+$/.test(text);
+  };
+
+  // Check if valid mobile number
+  const isValidMobile = (number: string): boolean => {
+    if (!number.trim()) return true;
+    return /^[0-9]{10}$/.test(number.trim());
+  };
+
+  const validateField = (
+    name: string,
+    value: string | string[]
+  ): string | undefined => {
+    // Handle mobile numbers array
+    if (name === "mobileNumbers") {
+      const numbers = value as string[];
+      const hasValidNumber = numbers.some((n) => n.trim() !== "");
+      if (!hasValidNumber) {
+        return "कम से कम एक मोबाइल नंबर अनिवार्य है";
+      }
+      const invalidNumber = numbers.find((n) => n.trim() && !isValidMobile(n));
+      if (invalidNumber) {
+        return "कृपया मान्य मोबाइल नंबर दर्ज करें (10 अंक)";
+      }
+      return undefined;
+    }
+
+    const strValue = value as string;
+
+    // Required check
+    if (!strValue.trim()) {
+      return "यह जानकारी अनिवार्य है";
+    }
+
+    // Fields that allow numbers
+    const numericFields = [
+      "birthDate",
+      "birthTime",
+      "monthlyIncome",
+      "fatherIncome",
+      "height",
+      "weight",
+    ];
+
+    if (!numericFields.includes(name)) {
+      if (containsEnglish(strValue)) {
+        return "कृपया केवल हिंदी में जानकारी भरें";
+      }
+      if (!isValidHindi(strValue)) {
+        return "कृपया केवल हिंदी भाषा का प्रयोग करें";
+      }
+    }
+
+    return undefined;
+  };
+
+  const handleChange = async (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setActiveField(name);
+
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+
+    if (HINDI_TEXT_FIELDS.includes(name)) {
+      const suggestions = await fetchHindiSuggestions(value);
+      setHindiSuggestions(suggestions);
+    } else {
+      setHindiSuggestions([]);
+    }
+  };
+
+  const HINDI_TEXT_FIELDS = [
+    "candidateName",
+    "fatherName",
+    "motherName",
+    "birthPlace",
+    "otherDetails",
+    "gotra",
+    "nanihal",
+    "education",
+    "occupation",
+    "fatherOccupation",
+    "fullAddress",
+    "tehsil",
+    "district",
+  ];
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  const handleMobileChange = (index: number, value: string) => {
+    // Only allow numeric input
+    const numericValue = value.replace(/[^0-9]/g, "").slice(0, 10);
+    const newNumbers = [...formData.mobileNumbers];
+    newNumbers[index] = numericValue;
+    setFormData((prev) => ({ ...prev, mobileNumbers: newNumbers }));
+
+    const error = validateField("mobileNumbers", newNumbers);
+    setErrors((prev) => ({ ...prev, mobileNumbers: error }));
+  };
+
+  const addMobileNumber = () => {
+    if (formData.mobileNumbers.length < 5) {
+      setFormData((prev) => ({
+        ...prev,
+        mobileNumbers: [...prev.mobileNumbers, ""],
+      }));
+    }
+  };
+
+  const removeMobileNumber = (index: number) => {
+    if (formData.mobileNumbers.length > 1) {
+      const newNumbers = formData.mobileNumbers.filter((_, i) => i !== index);
+      setFormData((prev) => ({ ...prev, mobileNumbers: newNumbers }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {}; // ✅ DECLARED HERE
+
+    const requiredFields = [
+      "candidateName",
+      "fatherName",
+      "motherName",
+      "birthDate",
+      "birthTime",
+      "birthPlace",
+      "parichay",
+      "nakshatra",
+      "charan",
+      "rashi",
+      "nadi",
+      "manglik",
+      "patrikaRequired",
+      "height",
+      "complexion",
+      "weight",
+      "gotra",
+      "nanihal",
+      "education",
+      "occupation",
+      "monthlyIncome",
+      "fatherOccupation",
+      "fatherIncome",
+      "fullAddress",
+      "tehsil",
+      "district",
+    ];
+
+    requiredFields.forEach((key) => {
+      const error = validateField(
+        key,
+        formData[key as keyof FormData] as string
+      );
+      if (error) {
+        newErrors[key] = error;
+      }
+    });
+
+    // ✅ Validate mobile numbers
+    const mobileError = validateField("mobileNumbers", formData.mobileNumbers);
+    if (mobileError) {
+      newErrors.mobileNumbers = mobileError;
+    }
+
+    // ✅ Validate photo
+    const photoError = validateImage(formData.photo);
+    if (photoError) {
+      newErrors.photo = photoError;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateImage = (file: File | null): string | undefined => {
+    if (!file) return "प्रत्याशी की फोटो अनिवार्य है";
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      return "केवल JPG या PNG फोटो अपलोड करें";
+    }
+
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      return "फोटो का आकार 2MB से कम होना चाहिए";
+    }
+
+    return undefined;
+  };
+
+  // const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0] || null;
+
+  //   setFormData((prev) => ({ ...prev, photo: file }));
+
+  //   const error = validateImage(file);
+  //   setErrors((prev) => ({ ...prev, photo: error }));
+  // };
+
+  const photoError = validateImage(formData.photo);
+  if (photoError) {
+    // newErrors.photo = photoError;
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      toast({
+        title: "त्रुटि",
+        description: "कृपया सभी आवश्यक जानकारी सही ढंग से भरें",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    console.log("पंजीकरण डेटा:", formData);
+
+    toast({
+      title: "पंजीकरण सफल!",
+      description: "आपका पंजीकरण सफलतापूर्वक जमा हो गया है। धन्यवाद!",
+    });
+
+    // Reset form
+    setFormData({
+      candidateName: "",
+      fatherName: "",
+      motherName: "",
+      birthDate: "",
+      birthTime: "",
+      birthPlace: "",
+      otherDetails: "",
+      parichay: "",
+      nakshatra: "",
+      charan: "",
+      rashi: "",
+      nadi: "",
+      manglik: "",
+      patrikaRequired: "",
+      height: "",
+      complexion: "",
+      weight: "",
+      gotra: "",
+      nanihal: "",
+      education: "",
+      occupation: "",
+      monthlyIncome: "",
+      fatherOccupation: "",
+      fatherIncome: "",
+      fullAddress: "",
+      tehsil: "",
+      district: "",
+      mobileNumbers: [""],
+      photo: null,
+      heightInch: null,
+    });
+    setErrors({});
+    setIsSubmitting(false);
+  };
+
+  const fetchAddressFromPincode = async (pin: string) => {
+    if (pin.length !== 6) return;
+
+    try {
+      setIsFetchingPin(true);
+
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+      const data = await res.json();
+
+      if (data[0]?.Status === "Success") {
+        const postOffice = data[0].PostOffice[0];
+
+        setFormData((prev) => ({
+          ...prev,
+          district: postOffice.District || "",
+          tehsil: postOffice.Block || "",
+        }));
+      }
+    } catch (err) {
+      console.error("Pincode fetch failed", err);
+    } finally {
+      setIsFetchingPin(false);
+    }
+  };
+
+  const getCroppedImg = async (imageSrc: string, crop: any): Promise<File> => {
+    const image = new Image();
+    image.src = imageSrc;
+
+    await new Promise((resolve) => {
+      image.onload = resolve;
+    });
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+
+    canvas.width = crop.width;
+    canvas.height = crop.height;
+
+    ctx.drawImage(
+      image,
+      crop.x,
+      crop.y,
+      crop.width,
+      crop.height,
+      0,
+      0,
+      crop.width,
+      crop.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(new File([blob!], "profile.jpg", { type: "image/jpeg" }));
+      }, "image/jpeg");
+    });
+  };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageSrc(reader.result as string);
+      setShowCropModal(true);
+    };
+    reader.readAsDataURL(file);
+  };
+  const onCropComplete = (_: any, croppedPixels: any) => {
+    setCroppedAreaPixels(croppedPixels);
+  };
+
+  const saveCroppedImage = async () => {
+    if (!imageSrc || !croppedAreaPixels) return;
+
+    const croppedFile = await getCroppedImg(imageSrc, croppedAreaPixels);
+
+    setFormData((prev) => ({ ...prev, photo: croppedFile }));
+    setShowCropModal(false);
+  };
+
+  // 🔤 Google Hindi Transliteration Helper
+  const fetchHindiSuggestions = async (text: string): Promise<string[]> => {
+    if (!text.trim()) return [];
+
+    try {
+      const res = await fetch(
+        `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(
+          text
+        )}`
+      );
+      const data = await res.json();
+
+      if (data[0] === "SUCCESS") {
+        return data[1][0][1];
+      }
+    } catch (err) {
+      console.error("Hindi transliteration error", err);
+    }
+
+    return [];
+  };
+
+  const HindiSuggestionBox = ({ field }: { field: string }) => {
+    if (activeField !== field || hindiSuggestions.length === 0) return null;
+
+    return (
+      <ul className="absolute z-50 w-full bg-white border rounded shadow mt-1 max-h-40 overflow-auto">
+        {hindiSuggestions.map((item, index) => (
+          <li
+            key={index}
+            onClick={() => {
+              setFormData((prev) => ({ ...prev, [field]: item }));
+              setHindiSuggestions([]);
+            }}
+            className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-8 animate-fade-in animation-delay-200"
+    >
+      {/* Form title */}
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
+          <Sparkles className="w-6 h-6 text-gold" />
+          प्रत्याशी पंजीकरण फॉर्म
+          <Sparkles className="w-6 h-6 text-gold" />
+        </h3>
+        <p className="text-muted-foreground mt-2">
+          कृपया सभी जानकारी हिंदी में भरें
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Section: परिचय */}
+        <div className="lg:col-span-8 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <Star className="w-5 h-5" />
+            परिचय
+          </h4>
+
+          <FormField
+            label="परिचय का चयन करें"
+            error={errors.parichay}
+            hint="एक विकल्प चुनें"
+            required
+          >
+            <RadioGroup
+              value={formData.parichay}
+              onValueChange={(value) => handleSelectChange("parichay", value)}
+              className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+            >
+              {PARICHAY_OPTIONS.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={option.value}
+                    id={option.value}
+                    className="border-maroon text-maroon"
+                  />
+                  <Label
+                    htmlFor={option.value}
+                    className="text-foreground cursor-pointer"
+                  >
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </FormField>
+        </div>
+
+        {/* Section: प्रत्याशी की फोटो */}
+        <div className="lg:col-span-4 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20 flex flex-col items-center">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <User className="w-5 h-5" />
+            प्रत्याशी की फोटो
+          </h4>
+
+          <FormField label="फोटो अपलोड करें" error={errors.photo} required>
+            <label
+              className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48
+                     flex items-center justify-center rounded-xl
+                     border-2 border-dashed border-maroon cursor-pointer"
+            >
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+
+              {!formData.photo ? (
+                <User className="w-12 h-12 text-maroon/50" />
+              ) : (
+                <img
+                  src={URL.createObjectURL(formData.photo)}
+                  className="w-full h-full rounded-xl object-cover"
+                />
+              )}
+            </label>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Section: व्यक्तिगत विवरण */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <User className="w-5 h-5" />
+          व्यक्तिगत विवरण
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            label="प्रत्याशी का नाम"
+            error={errors.candidateName}
+            required
+          >
+            <div className="relative">
+              <Input
+                name="candidateName"
+                value={formData.candidateName}
+                onChange={handleChange}
+                placeholder="उदा: सुमित"
+              />
+              <HindiSuggestionBox field="candidateName" />
+            </div>
+          </FormField>
+
+          <FormField label="पिता का नाम" error={errors.fatherName} required>
+            <div className="relative">
+              <Input
+                name="fatherName"
+                value={formData.fatherName}
+                onChange={handleChange}
+                placeholder="उदा: महेश"
+              />
+              <HindiSuggestionBox field="fatherName" />
+            </div>
+          </FormField>
+
+          <FormField label="माता का नाम" error={errors.motherName} required>
+            <div className="relative">
+              <Input
+                name="motherName"
+                value={formData.motherName}
+                onChange={handleChange}
+                placeholder="उदा: सुनीता"
+              />
+              <HindiSuggestionBox field="motherName" />
+            </div>
+          </FormField>
+        </div>
+      </div>
+
+      {showCropModal && (
+        <div className="fixed inset-0 z-50 items-start bg-black/70 flex justify-center">
+          <div className="bg-white rounded-xl w-[90vw] max-w-md p-4 space-y-4">
+            <h4 className="text-lg font-semibold text-center">
+              फोटो क्रॉप करें
+            </h4>
+
+            <div className="relative w-full h-64 bg-black">
+              <Cropper
+                image={imageSrc!}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+
+            <input
+              type="range"
+              min={1}
+              max={3}
+              step={0.1}
+              value={zoom}
+              onChange={(e) => setZoom(+e.target.value)}
+            />
+
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={() => setShowCropModal(false)}>
+                रद्द करें
+              </Button>
+              <Button onClick={saveCroppedImage}>सेव करें</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Section: जन्म विवरण */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <Calendar className="w-5 h-5" />
+          जन्म विवरण
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <FormField
+            label="जन्म दिनांक"
+            error={errors.birthDate}
+            hint="तारीख चुनें"
+            required
+          >
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
+              <Input
+                type="date"
+                name="birthDate"
+                value={formData.birthDate}
+                onChange={handleChange}
+                className="pl-11"
+              />
+            </div>
+          </FormField>
+
+          <FormField
+            label="जन्म समय"
+            error={errors.birthTime}
+            hint="सही समय दर्ज करें"
+            required
+          >
+            <div className="relative">
+              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
+              <Input
+                type="time"
+                name="birthTime"
+                value={formData.birthTime}
+                onChange={handleChange}
+                className="pl-11"
+              />
+            </div>
+          </FormField>
+
+          <FormField
+            label="जन्म स्थान"
+            error={errors.birthPlace}
+            hint="शहर/गाँव का नाम"
+            required
+          >
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <div className="relative">
+                <Input
+                  name="birthPlace"
+                  value={formData.birthPlace}
+                  onChange={handleChange}
+                  placeholder="उदा: देवास, मध्य प्रदेश"
+                />
+                <HindiSuggestionBox field="birthPlace" />
+              </div>
+            </div>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Section: कुंडली विवरण */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <Sparkles className="w-5 h-5" />
+          कुंडली विवरण
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <FormField
+            label="नक्षत्र"
+            error={errors.nakshatra}
+            hint="नक्षत्र चुनें"
+            required
+          >
+            <Select
+              value={formData.nakshatra}
+              onValueChange={(value) => handleSelectChange("nakshatra", value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="नक्षत्र चुनें" />
+              </SelectTrigger>
+              <SelectContent>
+                {NAKSHATRAS.map((nakshatra) => (
+                  <SelectItem key={nakshatra} value={nakshatra}>
+                    {nakshatra}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+
+          <FormField
+            label="चरण"
+            error={errors.charan}
+            hint="चरण चुनें"
+            required
+          >
+            <Select
+              value={formData.charan}
+              onValueChange={(value) => handleSelectChange("charan", value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="चरण चुनें" />
+              </SelectTrigger>
+              <SelectContent>
+                {CHARANS.map((charan) => (
+                  <SelectItem key={charan} value={charan}>
+                    {charan}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+
+          <FormField
+            label="राशि"
+            error={errors.rashi}
+            hint="राशि चुनें"
+            required
+          >
+            <Select
+              value={formData.rashi}
+              onValueChange={(value) => handleSelectChange("rashi", value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="राशि चुनें" />
+              </SelectTrigger>
+              <SelectContent>
+                {RASHIS.map((rashi) => (
+                  <SelectItem key={rashi} value={rashi}>
+                    {rashi}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+
+          <FormField
+            label="नाड़ी"
+            error={errors.nadi}
+            hint="नाड़ी चुनें"
+            required
+          >
+            <Select
+              value={formData.nadi}
+              onValueChange={(value) => handleSelectChange("nadi", value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="नाड़ी चुनें" />
+              </SelectTrigger>
+              <SelectContent>
+                {NADIS.map((nadi) => (
+                  <SelectItem key={nadi} value={nadi}>
+                    {nadi}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+
+          <FormField
+            label="मांगलिक"
+            error={errors.manglik}
+            hint="हाँ या नहीं चुनें"
+            required
+          >
+            <RadioGroup
+              value={formData.manglik}
+              onValueChange={(value) => handleSelectChange("manglik", value)}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value="हाँ"
+                  id="manglik-yes"
+                  className="border-maroon text-maroon"
+                />
+                <Label htmlFor="manglik-yes" className="cursor-pointer">
+                  हाँ
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value="नहीं"
+                  id="manglik-no"
+                  className="border-maroon text-maroon"
+                />
+                <Label htmlFor="manglik-no" className="cursor-pointer">
+                  नहीं
+                </Label>
+              </div>
+            </RadioGroup>
+          </FormField>
+
+          <FormField
+            label="पत्रिका मिलान आवश्यक है?"
+            error={errors.patrikaRequired}
+            hint="हाँ या नहीं चुनें"
+            required
+          >
+            <RadioGroup
+              value={formData.patrikaRequired}
+              onValueChange={(value) =>
+                handleSelectChange("patrikaRequired", value)
+              }
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value="हाँ"
+                  id="patrika-yes"
+                  className="border-maroon text-maroon"
+                />
+                <Label htmlFor="patrika-yes" className="cursor-pointer">
+                  हाँ
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value="नहीं"
+                  id="patrika-no"
+                  className="border-maroon text-maroon"
+                />
+                <Label htmlFor="patrika-no" className="cursor-pointer">
+                  नहीं
+                </Label>
+              </div>
+            </RadioGroup>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Section: गोत्र एवं ननिहाल */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <Users className="w-5 h-5" />
+          गोत्र एवं ननिहाल
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            label="गोत्र (स्वयं)"
+            error={errors.gotra}
+            hint="अपना गोत्र लिखें"
+            required
+          >
+            <div className="relative">
+              <Input
+                name="gotra"
+                value={formData.gotra}
+                onChange={handleChange}
+                placeholder="उदा: kashyap"
+              />
+              <HindiSuggestionBox field="gotra" />
+            </div>
+          </FormField>
+
+          <FormField
+            label="ननिहाल"
+            error={errors.nanihal}
+            hint="ननिहाल का गोत्र"
+            required
+          >
+            <div className="relative">
+              <Input
+                name="nanihal"
+                value={formData.nanihal}
+                onChange={handleChange}
+                placeholder="उदा: bhardwaj"
+              />
+              <HindiSuggestionBox field="nanihal" />
+            </div>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Section: शारीरिक विवरण */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <Ruler className="w-5 h-5" />
+          शारीरिक विवरण
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FormField
+            label="ऊँचाई"
+            error={errors.height}
+            hint="फीट और इंच में"
+            required
+          >
+            <div className="grid grid-cols-2 gap-4">
+              {/* Feet */}
+              <div className="relative">
+                <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type="number"
+                  name="heightFeet"
+                  min={1}
+                  max={8}
+                  value={formData.heightFeet}
+                  onChange={handleChange}
+                  placeholder="फीट (उदा: 5)"
+                  className="pl-11"
+                  required
+                />
+              </div>
+
+              {/* Inch */}
+              <Input
+                type="number"
+                name="heightInch"
+                min={0}
+                max={11}
+                value={formData.heightInch}
+                onChange={handleChange}
+                placeholder="इंच (उदा: 7)"
+                required
+              />
+            </div>
+          </FormField>
+
+          <FormField
+            label="रंग"
+            error={errors.complexion}
+            hint="त्वचा का रंग"
+            required
+          >
+            <div className="relative">
+              <Palette className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+
+              <select
+                name="complexion"
+                value={formData.complexion}
+                onChange={handleChange}
+                required
+                className="flex h-10 w-full appearance-none rounded-md border border-input bg-background pl-11 pr-10 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="">— चयन करें —</option>
+                <option value="गोरा">गोरा</option>
+                <option value="गेहुआ">गेहुआ</option>
+                <option value="सांवला">सांवला</option>
+                <option value="श्याम">श्याम</option>
+                <option value="अतिगोरा">अतिगोरा</option>
+              </select>
+
+              {/* Dropdown arrow */}
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                ▼
+              </span>
+            </div>
+          </FormField>
+
+          <FormField
+            label="वजन"
+            error={errors.weight}
+            hint="किलोग्राम में"
+            required
+          >
+            <div className="relative">
+              <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                name="weight"
+                type="number"
+                value={formData.weight}
+                onChange={handleChange}
+                placeholder="उदा: 65 किलोग्राम"
+                className="pl-11"
+              />
+            </div>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Section: शिक्षा एवं व्यवसाय */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <GraduationCap className="w-5 h-5" />
+          शिक्षा एवं व्यवसाय
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FormField
+            label="प्रत्याशी की शिक्षा"
+            error={errors.education}
+            hint="उच्चतम शिक्षा"
+            required
+          >
+            <div className="relative">
+              <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <div className="relative">
+                <Input
+                  name="education"
+                  value={formData.education}
+                  onChange={handleChange}
+                  placeholder="उदा: स्नातक"
+                />
+                <HindiSuggestionBox field="education" />
+              </div>
+            </div>
+          </FormField>
+
+          <FormField
+            label="प्रत्याशी का वर्तमान व्यवसाय"
+            error={errors.occupation}
+            hint="आप वर्तमान में क्या कार्य करते हैं"
+            required
+          >
+            <div className="relative">
+              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+
+              <select
+                name="occupation"
+                value={formData.occupation}
+                onChange={handleChange}
+                required
+                className="flex h-10 w-full appearance-none rounded-md border border-input bg-background pl-11 pr-10 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="">— चयन करें —</option>
+                <option value="नौकरी">नौकरी</option>
+                <option value="व्यवसाय">व्यवसाय</option>
+                <option value="स्वरोज़गार">स्वरोज़गार</option>
+                <option value="कृषि">कृषि</option>
+                <option value="शिक्षक">शिक्षक</option>
+                <option value="सरकारी सेवा">सरकारी सेवा</option>
+                <option value="निजी सेवा">निजी सेवा</option>
+                <option value="फ्रीलांसर">फ्रीलांसर</option>
+                <option value="छात्र">छात्र</option>
+                <option value="गृहिणी">गृहिणी</option>
+                <option value="सेवानिवृत्त">सेवानिवृत्त</option>
+                <option value="अन्य">अन्य</option>
+              </select>
+
+              {/* Dropdown arrow */}
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                ▼
+              </span>
+            </div>
+          </FormField>
+
+          <FormField
+            label="प्रत्याशी क्या करता है"
+            error={errors.occupation}
+            hint="वर्तमान कार्य / व्यवसाय"
+            required
+          >
+            <div className="relative">
+              <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
+
+              <Select
+                value={formData.occupation}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, occupation: value })
+                }
+              >
+                <SelectTrigger className="pl-11">
+                  <SelectValue placeholder="चयन करें" />
+                </SelectTrigger>
+
+                {/* 👇 force dropdown to open BELOW */}
+                <SelectContent side="bottom" align="start">
+                  <SelectItem value="नौकरी">नौकरी</SelectItem>
+                  <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
+                  <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
+                  <SelectItem value="कृषि">कृषि</SelectItem>
+                  <SelectItem value="छात्र">छात्र</SelectItem>
+                  <SelectItem value="गृहिणी">गृहिणी</SelectItem>
+                  <SelectItem value="अन्य">अन्य</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Section: अभिभावक / पिता का विवरण */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <Users className="w-5 h-5" />
+          अभिभावक / पिता का विवरण
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            label="अभिभावक / पिता का व्यवसाय"
+            error={errors.fatherOccupation}
+            hint="पिताजी का व्यवसाय"
+            required
+          >
+            <div className="relative">
+              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <div className="relative">
+                <Input
+                  name="fatherOccupation"
+                  value={formData.fatherOccupation}
+                  onChange={handleChange}
+                  placeholder="उदा: business"
+                />
+                <HindiSuggestionBox field="fatherOccupation" />
+              </div>
+            </div>
+          </FormField>
+
+          <FormField
+            label="अभिभावक / पिता की मासिक आय"
+            error={errors.fatherIncome}
+            hint="रुपये में"
+            required
+          >
+            <div className="relative">
+              <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                name="fatherIncome"
+                value={formData.fatherIncome}
+                onChange={handleChange}
+                placeholder="उदा: 40000"
+                className="pl-11"
+              />
+            </div>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Section: पता विवरण */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <Home className="w-5 h-5" />
+          पता विवरण
+        </h4>
+
+        {/* Full Address */}
+        <FormField label="पूर्ण पता" error={errors.fullAddress} required>
+          <div className="relative">
+            <Textarea
+              name="fullAddress"
+              value={formData.fullAddress}
+              onChange={handleChange}
+              rows={3}
+              placeholder="उदा: मकान नंबर 123, गली नंबर 5, सेक्टर 4, भोपाल"
+            />
+            <HindiSuggestionBox field="fullAddress" />
+          </div>
+        </FormField>
+
+        {/* PIN CODE */}
+        <FormField label="पिन कोड" hint="6 अंकों का पिन कोड" required>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              value={pincode}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                setPincode(val);
+                if (val.length === 6) {
+                  fetchAddressFromPincode(val);
+                }
+              }}
+              placeholder="उदा: 455001"
+              className="pl-11"
+            />
+            {isFetchingPin && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                खोजा जा रहा है...
+              </span>
+            )}
+          </div>
+        </FormField>
+
+        {/* District + Tehsil */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            label="जिला"
+            error={errors.district}
+            hint="जिले का नाम"
+            required
+          >
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                value={formData.district}
+                onChange={handleChange}
+                name="district"
+                className="pl-11"
+                placeholder="उदा: भोपाल"
+              />
+            </div>
+          </FormField>
+
+          <FormField
+            label="तहसील"
+            error={errors.tehsil}
+            hint="तहसील का नाम"
+            required
+          >
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                value={formData.tehsil}
+                onChange={handleChange}
+                name="tehsil"
+                className="pl-11"
+                placeholder="उदा: हुजूर"
+              />
+            </div>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Section: मोबाइल नंबर */}
+      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <Phone className="w-5 h-5" />
+          मोबाइल नंबर
+        </h4>
+        <FormField
+          label="मोबाइल नंबर"
+          error={errors.mobileNumbers}
+          hint="10 अंकों का मोबाइल नंबर दर्ज करें"
+          required
+        >
+          <div className="space-y-3">
+            {formData.mobileNumbers.map((number, index) => (
+              <div key={index} className="flex gap-2">
+                <div className="relative flex-1">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    value={number}
+                    onChange={(e) => handleMobileChange(index, e.target.value)}
+                    placeholder="उदा: 9876543210"
+                    className="pl-11"
+                    maxLength={10}
+                  />
+                </div>
+                {formData.mobileNumbers.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => removeMobileNumber(index)}
+                    className="shrink-0 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            {formData.mobileNumbers.length < 5 && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addMobileNumber}
+                className="w-full border-dashed border-maroon text-maroon hover:bg-maroon/10"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                मोबाइल नंबर जोड़ें
+              </Button>
+            )}
+          </div>
+        </FormField>
+
+        <FormField
+          label="अन्य विशेष विवरण"
+          error={errors.otherDetails}
+          hint="अतिरिक्त जानकारी (वैकल्पिक)"
+        >
+          <div className="relative">
+            <Textarea
+              name="otherDetails"
+              value={formData.otherDetails}
+              onChange={handleChange}
+              placeholder="उदा: कोई विशेष जानकारी"
+            />
+            <HindiSuggestionBox field="otherDetails" />
+          </div>
+        </FormField>
+      </div>
+
+      {/* Submit Button */}
+      <div className="pt-4">
+        <Button
+          type="submit"
+          variant="saffron"
+          size="lg"
+          className="w-full text-lg"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+              कृपया प्रतीक्षा करें...
+            </>
+          ) : (
+            <>
+              <Send className="w-5 h-5" />
+              पंजीकरण जमा करें
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Footer note */}
+      <p className="text-center text-sm text-muted-foreground">
+        <span className="text-destructive">*</span> चिह्नित सभी जानकारी अनिवार्य
+        है
+      </p>
+    </form>
+  );
+};
+
+export default RegistrationForm;
