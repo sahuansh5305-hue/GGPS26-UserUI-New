@@ -22,7 +22,7 @@ const EventHeader = () => {
           <div className="flex w-full items-center -top-9 justify-between mb-6">
             <div className="hidden md:block">
               <img
-                src="/public/images/mataji.png"
+                src="/images/mataji.png"
                 alt="Left Decoration"
                 className="w-20 md:w-24 lg:w-28 object-contain rounded-lg"
               />
@@ -42,7 +42,7 @@ const EventHeader = () => {
 
             <div className="hidden md:block">
               <img
-                src="/public/images/gautamuni.png"
+                src="/images/gautamuni.png"
                 alt="Right Decoration"
                 className="w-20 md:w-24 lg:w-28 object-contain"
               />
