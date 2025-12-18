@@ -32,18 +32,12 @@ const Index = () => {
         </div>
         {/* Footer */}
         <footer className="mt-10 text-center text-white text-xl animate-fade-in animation-delay-500">
-          <p className="flex items-center justify-center gap-2">
-            <span className="text-gold">🙏</span>
-            सभी का मंगल हो
-            <span className="text-gold">🙏</span>
-          </p>
-
           {/* Organizers */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Pramod Vyas */}
             <div className="text-center">
               <p className="font-semibold text-white">प्रमोद व्यास</p>
-              <p className="italic">( मुख्य संरक्षक अ.भ. युवक-युवती परिचय सम्मेलन)</p>
+              <p className="italic">( मुख्य संरक्षक अ.भा. युवक-युवती परिचय सम्मेलन)</p>
               <p className="mt-1">📞 9425494210</p>
             </div>
 
@@ -62,7 +56,7 @@ const Index = () => {
             <p className="mt-1">📞 9926929498</p>
           </div>
 
-          <p className="mt-6">© 2026 देवास जिला गुर्जर गौंड ब्राह्मण समाज</p>
+          <p className="mt-6">© 2026, देवास जिला गुर्जर गौंड ब्राह्मण समाज</p>
         </footer>
       </main>
  <footer className="relative z-10 bg-gradient-to-r from-saffron to-saffron-light shadow-soft">
@@ -72,12 +66,11 @@ const Index = () => {
       text-xs sm:text-sm font-semibold text-muted-foreground
       flex flex-col items-center gap-2
       sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-4 sm:gap-y-2
-      text-center
-    "
+      text-center text-white"
   >
-    <span className="text-maroon">
+    <span className="">
       Powered By:
-      <span className="ml-1 font-bold text-maroon">
+      <span className="ml-1 font-bold">
         KodeCrown Technologies
       </span>
     </span>
@@ -88,7 +81,7 @@ const Index = () => {
       href="https://kodecrown.com/"
       target="_blank"
       rel="noopener noreferrer"
-      className="text-maroon hover:underline break-all"
+      className=" hover:underline break-all"
     >
       www.kodecrown.com
     </a>
@@ -96,15 +89,15 @@ const Index = () => {
     <span className="hidden sm:inline">|</span>
 
     <a
-      href="mailto:business@kodecrown.com"
-      className="hover:underline  text-maroon break-all"
+      href="dewasparichaysammelan26@gmail.com"
+      className="hover:underline break-all"
     >
-      business@kodecrown.com
+      dewasparichaysammelan26@gmail.com
     </a>
 
     <span className="hidden sm:inline">|</span>
 
-    <span className="break-all  text-maroon">
+    <span className="break-all">
       +91-9753309166 (WhatsApp Only)
     </span>
   </div>
