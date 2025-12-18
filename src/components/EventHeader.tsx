@@ -13,14 +13,14 @@ const EventHeader = () => {
       {/* Top images */}
       <div className="absolute top-20 left-6 w-20 h-28 md:w-24 md:h-32 rounded-lg overflow-hidden border-2 border-gold/50 shadow-lg">
         <img 
-          src="/public/images/mataji.png"
+          src="/images/mataji.png"
           alt="छोटी माता" 
           className="w-full h-full object-cover"
         />
       </div>
       <div className="absolute top-20 right-6 w-20 h-32 md:w-24 md:h-32 rounded-lg overflow-hidden -mt-3">
         <img 
-          src="/public/images/gautamuni.png"
+          src="/images/gautamuni.png"
           alt="गौतम मुनि" 
           className="w-full h-full object-cover"
         />
@@ -90,3 +90,4 @@ const EventHeader = () => {
 };
 
 export default EventHeader;
+
