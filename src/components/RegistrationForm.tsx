@@ -123,7 +123,8 @@ interface FormData {
   fullAddress: string;
   tehsil: string;
   district: string;
-  mobileNumbers: string[];
+  candidateMobile: string;
+  guardianMobileNumbers: string[];
   photo: File | null;
   heightInch: number;
 }
@@ -161,7 +162,8 @@ const RegistrationForm = () => {
     fullAddress: "",
     tehsil: "",
     district: "",
-    mobileNumbers: [""],
+    candidateMobile: "",
+    guardianMobileNumbers: [""],
     photo: null,
     heightInch: null,
   });
@@ -202,15 +204,24 @@ const RegistrationForm = () => {
     name: string,
     value: string | string[]
   ): string | undefined => {
-    // Handle mobile numbers array
-    if (name === "mobileNumbers") {
+    // Handle guardian mobile numbers array
+    if (name === "guardianMobileNumbers") {
       const numbers = value as string[];
       const hasValidNumber = numbers.some((n) => n.trim() !== "");
       if (!hasValidNumber) {
-        return "कम से कम एक मोबाइल नंबर अनिवार्य है";
+        return "कम से कम एक अभिभावक मोबाइल नंबर अनिवार्य है";
       }
       const invalidNumber = numbers.find((n) => n.trim() && !isValidMobile(n));
       if (invalidNumber) {
+        return "कृपया मान्य मोबाइल नंबर दर्ज करें (10 अंक)";
+      }
+      return undefined;
+    }
+
+    // Handle candidate mobile (optional)
+    if (name === "candidateMobile") {
+      const strValue = value as string;
+      if (strValue.trim() && !isValidMobile(strValue)) {
         return "कृपया मान्य मोबाइल नंबर दर्ज करें (10 अंक)";
       }
       return undefined;
@@ -234,12 +245,12 @@ const RegistrationForm = () => {
     ];
 
     if (!numericFields.includes(name)) {
-      if (containsEnglish(strValue)) {
-        return "कृपया केवल हिंदी में जानकारी भरें";
-      }
-      if (!isValidHindi(strValue)) {
-        return "कृपया केवल हिंदी भाषा का प्रयोग करें";
-      }
+      // if (containsEnglish(strValue)) {
+      //   return "कृपया केवल हिंदी में जानकारी भरें";
+      // }
+      // if (!isValidHindi(strValue)) {
+      //   return "कृपया केवल हिंदी भाषा का प्रयोग करें";
+      // }
     }
 
     return undefined;
@@ -285,36 +296,99 @@ const RegistrationForm = () => {
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleMobileChange = (index: number, value: string) => {
-    // Only allow numeric input
+  const handleCandidateMobileChange = (value: string) => {
     const numericValue = value.replace(/[^0-9]/g, "").slice(0, 10);
-    const newNumbers = [...formData.mobileNumbers];
-    newNumbers[index] = numericValue;
-    setFormData((prev) => ({ ...prev, mobileNumbers: newNumbers }));
-
-    const error = validateField("mobileNumbers", newNumbers);
-    setErrors((prev) => ({ ...prev, mobileNumbers: error }));
+    setFormData((prev) => ({ ...prev, candidateMobile: numericValue }));
+    const error = validateField("candidateMobile", numericValue);
+    setErrors((prev) => ({ ...prev, candidateMobile: error }));
   };
 
-  const addMobileNumber = () => {
-    if (formData.mobileNumbers.length < 5) {
+  const handleGuardianMobileChange = (index: number, value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, "").slice(0, 10);
+    const newNumbers = [...formData.guardianMobileNumbers];
+    newNumbers[index] = numericValue;
+    setFormData((prev) => ({ ...prev, guardianMobileNumbers: newNumbers }));
+
+    const error = validateField("guardianMobileNumbers", newNumbers);
+    setErrors((prev) => ({ ...prev, guardianMobileNumbers: error }));
+  };
+
+  const addGuardianMobileNumber = () => {
+    if (formData.guardianMobileNumbers.length < 2) {
       setFormData((prev) => ({
         ...prev,
-        mobileNumbers: [...prev.mobileNumbers, ""],
+        guardianMobileNumbers: [...prev.guardianMobileNumbers, ""],
       }));
     }
   };
 
-  const removeMobileNumber = (index: number) => {
-    if (formData.mobileNumbers.length > 1) {
-      const newNumbers = formData.mobileNumbers.filter((_, i) => i !== index);
-      setFormData((prev) => ({ ...prev, mobileNumbers: newNumbers }));
+  const removeGuardianMobileNumber = (index: number) => {
+    if (formData.guardianMobileNumbers.length > 1) {
+      const newNumbers = formData.guardianMobileNumbers.filter(
+        (_, i) => i !== index
+      );
+      setFormData((prev) => ({ ...prev, guardianMobileNumbers: newNumbers }));
     }
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}; // ✅ DECLARED HERE
+  // const validateForm = (): boolean => {
+  //   const newErrors: FormErrors = {};
 
+  //   const requiredFields = [
+  //     "candidateName",
+  //     "fatherName",
+  //     "motherName",
+  //     "birthDate",
+  //     "birthTime",
+  //     "birthPlace",
+  //     "parichay",
+  //     "nakshatra",
+  //     "charan",
+  //     "rashi",
+  //     "nadi",
+  //     "manglik",
+  //     "patrikaRequired",
+  //     "height",
+  //     "complexion",
+  //     "weight",
+  //     "gotra",
+  //     "nanihal",
+  //     "education",
+  //     "occupation",
+  //     "monthlyIncome",
+  //     "fatherOccupation",
+  //     "fatherIncome",
+  //     "fullAddress",
+  //     "tehsil",
+  //     "district",
+  //   ];
+
+  //   requiredFields.forEach((key) => {
+  //     const error = validateField(
+  //       key,
+  //       formData[key as keyof FormData] as string
+  //     );
+  //     if (error) {
+  //       newErrors[key] = error;
+  //     }
+  //   });
+
+  //   const mobileError = validateField("mobileNumbers", formData.mobileNumbers);
+  //   if (mobileError) {
+  //     newErrors.mobileNumbers = mobileError;
+  //   }
+
+  //   const photoError = validateImage(formData.photo);
+  //   if (photoError) {
+  //     newErrors.photo = photoError;
+  //   }
+
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
     const requiredFields = [
       "candidateName",
       "fatherName",
@@ -354,16 +428,22 @@ const RegistrationForm = () => {
       }
     });
 
-    // ✅ Validate mobile numbers
-    const mobileError = validateField("mobileNumbers", formData.mobileNumbers);
-    if (mobileError) {
-      newErrors.mobileNumbers = mobileError;
+    // Validate guardian mobile numbers
+    const guardianMobileError = validateField(
+      "guardianMobileNumbers",
+      formData.guardianMobileNumbers
+    );
+    if (guardianMobileError) {
+      newErrors.guardianMobileNumbers = guardianMobileError;
     }
 
-    // ✅ Validate photo
-    const photoError = validateImage(formData.photo);
-    if (photoError) {
-      newErrors.photo = photoError;
+    // Validate candidate mobile (optional, but check format if provided)
+    const candidateMobileError = validateField(
+      "candidateMobile",
+      formData.candidateMobile
+    );
+    if (candidateMobileError) {
+      newErrors.candidateMobile = candidateMobileError;
     }
 
     setErrors(newErrors);
@@ -450,7 +530,8 @@ const RegistrationForm = () => {
       fullAddress: "",
       tehsil: "",
       district: "",
-      mobileNumbers: [""],
+      candidateMobile: "",
+      guardianMobileNumbers: [""],
       photo: null,
       heightInch: null,
     });
@@ -591,33 +672,23 @@ const RegistrationForm = () => {
       {/* Form title */}
       <div className="text-center mb-8">
         <h3 className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
-          <Sparkles className="w-6 h-6 text-gold" />
           प्रत्याशी पंजीकरण फॉर्म
-          <Sparkles className="w-6 h-6 text-gold" />
         </h3>
-        <p className="text-muted-foreground mt-2">
-          कृपया सभी जानकारी हिंदी में भरें
-        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Section: परिचय */}
         <div className="lg:col-span-8 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          {/* <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
             <Star className="w-5 h-5" />
             परिचय
-          </h4>
+          </h4> */}
 
-          <FormField
-            label="परिचय का चयन करें"
-            error={errors.parichay}
-            hint="एक विकल्प चुनें"
-            required
-          >
+          <FormField label="परिचय" error={errors.parichay} required user>
             <RadioGroup
               value={formData.parichay}
               onValueChange={(value) => handleSelectChange("parichay", value)}
-              className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+              className="grid md:grid-cols-2 sm:grid-cols-3 gap-y-10"
             >
               {PARICHAY_OPTIONS.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
@@ -640,12 +711,12 @@ const RegistrationForm = () => {
 
         {/* Section: प्रत्याशी की फोटो */}
         <div className="lg:col-span-4 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20 flex flex-col items-center">
-          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-            <User className="w-5 h-5" />
-            प्रत्याशी की फोटो
-          </h4>
-
-          <FormField label="फोटो अपलोड करें" error={errors.photo} required>
+          <FormField
+            label="प्रत्याशी की फोटो"
+            error={errors.photo}
+            required
+            user
+          >
             <label
               className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48
                      flex items-center justify-center rounded-xl
@@ -668,6 +739,13 @@ const RegistrationForm = () => {
               )}
             </label>
           </FormField>
+          <div className="flex">
+            <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            फोटो अपलोड करें
+          </h4>
+          <span className="text-destructive ml-1">*</span>
+          </div>
+          
         </div>
       </div>
 
@@ -688,7 +766,7 @@ const RegistrationForm = () => {
                 name="candidateName"
                 value={formData.candidateName}
                 onChange={handleChange}
-                placeholder="उदा: सुमित"
+                placeholder="सुमित शर्मा"
               />
               <HindiSuggestionBox field="candidateName" />
             </div>
@@ -700,7 +778,7 @@ const RegistrationForm = () => {
                 name="fatherName"
                 value={formData.fatherName}
                 onChange={handleChange}
-                placeholder="उदा: महेश"
+                placeholder="महेश शर्मा"
               />
               <HindiSuggestionBox field="fatherName" />
             </div>
@@ -712,7 +790,7 @@ const RegistrationForm = () => {
                 name="motherName"
                 value={formData.motherName}
                 onChange={handleChange}
-                placeholder="उदा: सुनीता"
+                placeholder="सुनीता शर्मा"
               />
               <HindiSuggestionBox field="motherName" />
             </div>
@@ -765,12 +843,7 @@ const RegistrationForm = () => {
           जन्म विवरण
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FormField
-            label="जन्म दिनांक"
-            error={errors.birthDate}
-            hint="तारीख चुनें"
-            required
-          >
+          <FormField label="जन्म दिनांक" error={errors.birthDate} required>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
               <Input
@@ -783,12 +856,7 @@ const RegistrationForm = () => {
             </div>
           </FormField>
 
-          <FormField
-            label="जन्म समय"
-            error={errors.birthTime}
-            hint="सही समय दर्ज करें"
-            required
-          >
+          <FormField label="जन्म समय" error={errors.birthTime} required>
             <div className="relative">
               <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
               <Input
@@ -801,12 +869,7 @@ const RegistrationForm = () => {
             </div>
           </FormField>
 
-          <FormField
-            label="जन्म स्थान"
-            error={errors.birthPlace}
-            hint="शहर/गाँव का नाम"
-            required
-          >
+          <FormField label="जन्म स्थान" error={errors.birthPlace} required>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <div className="relative">
@@ -814,7 +877,7 @@ const RegistrationForm = () => {
                   name="birthPlace"
                   value={formData.birthPlace}
                   onChange={handleChange}
-                  placeholder="उदा: देवास, मध्य प्रदेश"
+                  placeholder="देवास, मध्य प्रदेश"
                 />
                 <HindiSuggestionBox field="birthPlace" />
               </div>
@@ -830,12 +893,7 @@ const RegistrationForm = () => {
           कुंडली विवरण
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FormField
-            label="नक्षत्र"
-            error={errors.nakshatra}
-            hint="नक्षत्र चुनें"
-            required
-          >
+          <FormField label="नक्षत्र" error={errors.nakshatra} required>
             <Select
               value={formData.nakshatra}
               onValueChange={(value) => handleSelectChange("nakshatra", value)}
@@ -853,12 +911,7 @@ const RegistrationForm = () => {
             </Select>
           </FormField>
 
-          <FormField
-            label="चरण"
-            error={errors.charan}
-            hint="चरण चुनें"
-            required
-          >
+          <FormField label="चरण" error={errors.charan} required>
             <Select
               value={formData.charan}
               onValueChange={(value) => handleSelectChange("charan", value)}
@@ -876,12 +929,7 @@ const RegistrationForm = () => {
             </Select>
           </FormField>
 
-          <FormField
-            label="राशि"
-            error={errors.rashi}
-            hint="राशि चुनें"
-            required
-          >
+          <FormField label="राशि" error={errors.rashi} required>
             <Select
               value={formData.rashi}
               onValueChange={(value) => handleSelectChange("rashi", value)}
@@ -899,12 +947,7 @@ const RegistrationForm = () => {
             </Select>
           </FormField>
 
-          <FormField
-            label="नाड़ी"
-            error={errors.nadi}
-            hint="नाड़ी चुनें"
-            required
-          >
+          <FormField label="नाड़ी" error={errors.nadi} required>
             <Select
               value={formData.nadi}
               onValueChange={(value) => handleSelectChange("nadi", value)}
@@ -922,12 +965,7 @@ const RegistrationForm = () => {
             </Select>
           </FormField>
 
-          <FormField
-            label="मांगलिक"
-            error={errors.manglik}
-            hint="हाँ या नहीं चुनें"
-            required
-          >
+          <FormField label="मांगलिक" error={errors.manglik} required>
             <RadioGroup
               value={formData.manglik}
               onValueChange={(value) => handleSelectChange("manglik", value)}
@@ -959,7 +997,6 @@ const RegistrationForm = () => {
           <FormField
             label="पत्रिका मिलान आवश्यक है?"
             error={errors.patrikaRequired}
-            hint="हाँ या नहीं चुनें"
             required
           >
             <RadioGroup
@@ -998,38 +1035,28 @@ const RegistrationForm = () => {
       <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
         <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
           <Users className="w-5 h-5" />
-          गोत्र एवं ननिहाल
-        </h4>
+          गोत्र(स्वयं एवं ननिहाल)
+                  </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            label="गोत्र (स्वयं)"
-            error={errors.gotra}
-            hint="अपना गोत्र लिखें"
-            required
-          >
+          <FormField label="स्वयं" error={errors.gotra} required>
             <div className="relative">
               <Input
                 name="gotra"
                 value={formData.gotra}
                 onChange={handleChange}
-                placeholder="उदा: kashyap"
+                placeholder="कश्यप"
               />
               <HindiSuggestionBox field="gotra" />
             </div>
           </FormField>
 
-          <FormField
-            label="ननिहाल"
-            error={errors.nanihal}
-            hint="ननिहाल का गोत्र"
-            required
-          >
+          <FormField label="ननिहाल" error={errors.nanihal} required>
             <div className="relative">
               <Input
                 name="nanihal"
                 value={formData.nanihal}
                 onChange={handleChange}
-                placeholder="उदा: bhardwaj"
+                placeholder="भारद्वाज"
               />
               <HindiSuggestionBox field="nanihal" />
             </div>
@@ -1047,7 +1074,6 @@ const RegistrationForm = () => {
           <FormField
             label="ऊँचाई"
             error={errors.height}
-            hint="फीट और इंच में"
             required
           >
             <div className="grid grid-cols-2 gap-4">
@@ -1061,13 +1087,15 @@ const RegistrationForm = () => {
                   max={8}
                   value={formData.heightFeet}
                   onChange={handleChange}
-                  placeholder="फीट (उदा: 5)"
+                  placeholder="फीट"
                   className="pl-11"
                   required
                 />
               </div>
 
               {/* Inch */}
+              <div className="relative">
+                <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="number"
                 name="heightInch"
@@ -1075,49 +1103,39 @@ const RegistrationForm = () => {
                 max={11}
                 value={formData.heightInch}
                 onChange={handleChange}
-                placeholder="इंच (उदा: 7)"
+                placeholder="इंच"
+                className="pl-11"
                 required
               />
             </div>
+            </div>
           </FormField>
-
-          <FormField
-            label="रंग"
-            error={errors.complexion}
-            hint="त्वचा का रंग"
-            required
-          >
+          <FormField label="रंग" error={errors.complexion} required>
             <div className="relative">
-              <Palette className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+              <Palette className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
 
-              <select
-                name="complexion"
+              <Select
                 value={formData.complexion}
-                onChange={handleChange}
-                required
-                className="flex h-10 w-full appearance-none rounded-md border border-input bg-background pl-11 pr-10 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                onValueChange={(value) =>
+                  setFormData({ ...formData, complexion: value })
+                }
               >
-                <option value="">— चयन करें —</option>
-                <option value="गोरा">गोरा</option>
-                <option value="गेहुआ">गेहुआ</option>
-                <option value="सांवला">सांवला</option>
-                <option value="श्याम">श्याम</option>
-                <option value="अतिगोरा">अतिगोरा</option>
-              </select>
+                <SelectTrigger className="pl-11">
+                  <SelectValue placeholder="चयन करें" />
+                </SelectTrigger>
 
-              {/* Dropdown arrow */}
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                ▼
-              </span>
+                {/* dropdown ALWAYS opens below */}
+                <SelectContent side="bottom" align="start">
+                  <SelectItem value="गोरा">गौर</SelectItem>
+                  <SelectItem value="गेहुआ">गेहुआ</SelectItem>
+                  <SelectItem value="सांवला">सांवला</SelectItem>
+                  <SelectItem value="श्याम">श्याम</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </FormField>
 
-          <FormField
-            label="वजन"
-            error={errors.weight}
-            hint="किलोग्राम में"
-            required
-          >
+          <FormField label="वजन (किलोग्राम)" error={errors.weight} required>
             <div className="relative">
               <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
@@ -1125,7 +1143,7 @@ const RegistrationForm = () => {
                 type="number"
                 value={formData.weight}
                 onChange={handleChange}
-                placeholder="उदा: 65 किलोग्राम"
+                placeholder="65"
                 className="pl-11"
               />
             </div>
@@ -1137,13 +1155,12 @@ const RegistrationForm = () => {
       <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
         <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
           <GraduationCap className="w-5 h-5" />
-          शिक्षा एवं व्यवसाय
+          शैक्षणिक योग्यता एवं व्यवसाय
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FormField
-            label="प्रत्याशी की शिक्षा"
+            label="शैक्षणिक योग्यता"
             error={errors.education}
-            hint="उच्चतम शिक्षा"
             required
           >
             <div className="relative">
@@ -1153,14 +1170,14 @@ const RegistrationForm = () => {
                   name="education"
                   value={formData.education}
                   onChange={handleChange}
-                  placeholder="उदा: स्नातक"
+                  placeholder="स्नातक"
                 />
                 <HindiSuggestionBox field="education" />
               </div>
             </div>
           </FormField>
 
-          <FormField
+          {/* <FormField
             label="प्रत्याशी का वर्तमान व्यवसाय"
             error={errors.occupation}
             hint="आप वर्तमान में क्या कार्य करते हैं"
@@ -1191,17 +1208,15 @@ const RegistrationForm = () => {
                 <option value="अन्य">अन्य</option>
               </select>
 
-              {/* Dropdown arrow */}
               <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 ▼
               </span>
             </div>
-          </FormField>
+          </FormField> */}
 
           <FormField
-            label="प्रत्याशी क्या करता है"
+            label="व्यवसाय"
             error={errors.occupation}
-            hint="वर्तमान कार्य / व्यवसाय"
             required
           >
             <div className="relative">
@@ -1230,6 +1245,22 @@ const RegistrationForm = () => {
               </Select>
             </div>
           </FormField>
+          <FormField
+            label="मासिक आय"
+            error={errors.fatherIncome}
+            required
+          >
+            <div className="relative">
+              <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                name="fatherIncome"
+                value={formData.fatherIncome}
+                onChange={handleChange}
+                placeholder="40000"
+                className="pl-11"
+              />
+            </div>
+          </FormField>
         </div>
       </div>
 
@@ -1241,29 +1272,40 @@ const RegistrationForm = () => {
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
-            label="अभिभावक / पिता का व्यवसाय"
-            error={errors.fatherOccupation}
-            hint="पिताजी का व्यवसाय"
+            label="व्यवसाय"
+            error={errors.occupation}
             required
           >
             <div className="relative">
-              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <div className="relative">
-                <Input
-                  name="fatherOccupation"
-                  value={formData.fatherOccupation}
-                  onChange={handleChange}
-                  placeholder="उदा: business"
-                />
-                <HindiSuggestionBox field="fatherOccupation" />
-              </div>
+              <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
+
+              <Select
+                value={formData.occupation}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, occupation: value })
+                }
+              >
+                <SelectTrigger className="pl-11">
+                  <SelectValue placeholder="चयन करें" />
+                </SelectTrigger>
+
+                {/* 👇 force dropdown to open BELOW */}
+                <SelectContent side="bottom" align="start">
+                  <SelectItem value="नौकरी">नौकरी</SelectItem>
+                  <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
+                  <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
+                  <SelectItem value="कृषि">कृषि</SelectItem>
+                  <SelectItem value="छात्र">छात्र</SelectItem>
+                  <SelectItem value="गृहिणी">गृहिणी</SelectItem>
+                  <SelectItem value="अन्य">अन्य</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </FormField>
 
           <FormField
-            label="अभिभावक / पिता की मासिक आय"
+            label="मासिक आय"
             error={errors.fatherIncome}
-            hint="रुपये में"
             required
           >
             <div className="relative">
@@ -1272,7 +1314,7 @@ const RegistrationForm = () => {
                 name="fatherIncome"
                 value={formData.fatherIncome}
                 onChange={handleChange}
-                placeholder="उदा: 40000"
+                placeholder="40000"
                 className="pl-11"
               />
             </div>
@@ -1294,15 +1336,15 @@ const RegistrationForm = () => {
               name="fullAddress"
               value={formData.fullAddress}
               onChange={handleChange}
-              rows={3}
-              placeholder="उदा: मकान नंबर 123, गली नंबर 5, सेक्टर 4, भोपाल"
+              rows={1}
+              placeholder="मकान नंबर 123, गली नंबर 5, सेक्टर 4, भोपाल"
             />
             <HindiSuggestionBox field="fullAddress" />
           </div>
         </FormField>
 
         {/* PIN CODE */}
-        <FormField label="पिन कोड" hint="6 अंकों का पिन कोड" required>
+        <FormField label="पिन कोड">
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
@@ -1314,7 +1356,7 @@ const RegistrationForm = () => {
                   fetchAddressFromPincode(val);
                 }
               }}
-              placeholder="उदा: 455001"
+              placeholder="455001"
               className="pl-11"
             />
             {isFetchingPin && (
@@ -1330,7 +1372,6 @@ const RegistrationForm = () => {
           <FormField
             label="जिला"
             error={errors.district}
-            hint="जिले का नाम"
             required
           >
             <div className="relative">
@@ -1340,7 +1381,7 @@ const RegistrationForm = () => {
                 onChange={handleChange}
                 name="district"
                 className="pl-11"
-                placeholder="उदा: भोपाल"
+                placeholder="भोपाल"
               />
             </div>
           </FormField>
@@ -1348,7 +1389,6 @@ const RegistrationForm = () => {
           <FormField
             label="तहसील"
             error={errors.tehsil}
-            hint="तहसील का नाम"
             required
           >
             <div className="relative">
@@ -1358,7 +1398,7 @@ const RegistrationForm = () => {
                 onChange={handleChange}
                 name="tehsil"
                 className="pl-11"
-                placeholder="उदा: हुजूर"
+                placeholder="हुजूर"
               />
             </div>
           </FormField>
@@ -1366,72 +1406,80 @@ const RegistrationForm = () => {
       </div>
 
       {/* Section: मोबाइल नंबर */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <Phone className="w-5 h-5" />
-          मोबाइल नंबर
-        </h4>
-        <FormField
-          label="मोबाइल नंबर"
-          error={errors.mobileNumbers}
-          hint="10 अंकों का मोबाइल नंबर दर्ज करें"
-          required
-        >
-          <div className="space-y-3">
-            {formData.mobileNumbers.map((number, index) => (
-              <div key={index} className="flex gap-2">
-                <div className="relative flex-1">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    value={number}
-                    onChange={(e) => handleMobileChange(index, e.target.value)}
-                    placeholder="उदा: 9876543210"
-                    className="pl-11"
-                    maxLength={10}
-                  />
-                </div>
-                {formData.mobileNumbers.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => removeMobileNumber(index)}
-                    className="shrink-0 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            {formData.mobileNumbers.length < 5 && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addMobileNumber}
-                className="w-full border-dashed border-maroon text-maroon hover:bg-maroon/10"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                मोबाइल नंबर जोड़ें
-              </Button>
-            )}
-          </div>
-        </FormField>
 
-        <FormField
-          label="अन्य विशेष विवरण"
-          error={errors.otherDetails}
-          hint="अतिरिक्त जानकारी (वैकल्पिक)"
-        >
-          <div className="relative">
-            <Textarea
-              name="otherDetails"
-              value={formData.otherDetails}
-              onChange={handleChange}
-              placeholder="उदा: कोई विशेष जानकारी"
-            />
-            <HindiSuggestionBox field="otherDetails" />
-          </div>
-        </FormField>
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Section: प्रत्याशी का मोबाइल नंबर */}
+        <div className="flex-1 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <FormField
+            label="प्रत्याशी का मोबाइल नंबर (वैकल्पिक)"
+            error={errors.candidateMobile}
+            required={false}
+            phone
+          >
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                value={formData.candidateMobile}
+                onChange={(e) => handleCandidateMobileChange(e.target.value)}
+                placeholder="9876543210"
+                className="pl-11"
+                maxLength={10}
+              />
+            </div>
+          </FormField>
+        </div>
+        <div className=" flex-1 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          {/* <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+          <Phone className="w-5 h-5" />
+          अभिभावक मोबाइल नंबर
+        </h4> */}
+          <FormField
+            label="अभिभावक मोबाइल नंबर"
+            error={errors.guardianMobileNumbers}
+            phone
+          >
+            <div className="space-y-3">
+              {formData.guardianMobileNumbers.map((number, index) => (
+                <div key={index} className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      value={number}
+                      onChange={(e) =>
+                        handleGuardianMobileChange(index, e.target.value)
+                      }
+                      placeholder="9876543210"
+                      className="pl-11"
+                      maxLength={10}
+                    />
+                  </div>
+                  {formData.guardianMobileNumbers.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => removeGuardianMobileNumber(index)}
+                      className="shrink-0 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              {formData.guardianMobileNumbers.length < 2 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addGuardianMobileNumber}
+                  className="w-full border-dashed border-maroon text-maroon hover:bg-maroon/10"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  मोबाइल नंबर जोड़ें
+                </Button>
+              )}
+            </div>
+          </FormField>
+        </div>
       </div>
 
       {/* Submit Button */}
@@ -1451,7 +1499,7 @@ const RegistrationForm = () => {
           ) : (
             <>
               <Send className="w-5 h-5" />
-              पंजीकरण जमा करें
+              पंजीकरण करें
             </>
           )}
         </Button>
