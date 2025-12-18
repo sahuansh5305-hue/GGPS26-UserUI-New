@@ -126,7 +126,6 @@ interface FormData {
   candidateMobile: string;
   guardianMobileNumbers: string[];
   photo: File | null;
-  heightInch: number;
 }
 
 interface FormErrors {
@@ -165,8 +164,11 @@ const RegistrationForm = () => {
     candidateMobile: "",
     guardianMobileNumbers: [""],
     photo: null,
-    heightInch: null,
   });
+
+  // Add these two lines for temporary UI state
+  const [heightFeet, setHeightFeet] = useState("");
+  const [heightInch, setHeightInch] = useState("");
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -386,6 +388,38 @@ const RegistrationForm = () => {
   //   setErrors(newErrors);
   //   return Object.keys(newErrors).length === 0;
   // };
+  // When either field changes
+  const handleHeightChange = (field: "feet" | "inch", value: string) => {
+    // Update local state for display
+    if (field === "feet") {
+      setHeightFeet(value);
+      // Combine and update formData
+      const combined =
+        value && heightInch
+          ? `${value}'${heightInch}"`
+          : value
+          ? `${value}'`
+          : heightInch
+          ? `0'${heightInch}"`
+          : "";
+      setFormData((prev) => ({ ...prev, height: combined }));
+    } else {
+      setHeightInch(value);
+      // Combine and update formData
+      const combined =
+        heightFeet && value
+          ? `${heightFeet}'${value}"`
+          : heightFeet
+          ? `${heightFeet}'`
+          : value
+          ? `0'${value}"`
+          : "";
+      setFormData((prev) => ({ ...prev, height: combined }));
+    }
+
+    // Clear error when user types
+    setErrors((prev) => ({ ...prev, height: undefined }));
+  };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -416,6 +450,7 @@ const RegistrationForm = () => {
       "fullAddress",
       "tehsil",
       "district",
+      "guardianMobileNumbers",
     ];
 
     requiredFields.forEach((key) => {
@@ -533,8 +568,12 @@ const RegistrationForm = () => {
       candidateMobile: "",
       guardianMobileNumbers: [""],
       photo: null,
-      heightInch: null,
     });
+
+    // ✅ Add these two lines to reset height fields
+    setHeightFeet("");
+    setHeightInch("");
+
     setErrors({});
     setIsSubmitting(false);
   };
@@ -741,11 +780,10 @@ const RegistrationForm = () => {
           </FormField>
           <div className="flex">
             <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-            फोटो अपलोड करें
-          </h4>
-          <span className="text-destructive ml-1">*</span>
+              फोटो अपलोड करें
+            </h4>
+            <span className="text-destructive ml-1">*</span>
           </div>
-          
         </div>
       </div>
 
@@ -1036,7 +1074,7 @@ const RegistrationForm = () => {
         <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
           <Users className="w-5 h-5" />
           गोत्र(स्वयं एवं ननिहाल)
-                  </h4>
+        </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField label="स्वयं" error={errors.gotra} required>
             <div className="relative">
@@ -1071,11 +1109,7 @@ const RegistrationForm = () => {
           शारीरिक विवरण
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField
-            label="ऊँचाई"
-            error={errors.height}
-            required
-          >
+          <FormField label="ऊँचाई" error={errors.height}>
             <div className="grid grid-cols-2 gap-4">
               {/* Feet */}
               <div className="relative">
@@ -1085,29 +1119,27 @@ const RegistrationForm = () => {
                   name="heightFeet"
                   min={1}
                   max={8}
-                  value={formData.heightFeet}
-                  onChange={handleChange}
+                  value={heightFeet}
+                  onChange={(e) => handleHeightChange("feet", e.target.value)}
                   placeholder="फीट"
                   className="pl-11"
-                  required
                 />
               </div>
 
               {/* Inch */}
               <div className="relative">
                 <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                type="number"
-                name="heightInch"
-                min={0}
-                max={11}
-                value={formData.heightInch}
-                onChange={handleChange}
-                placeholder="इंच"
-                className="pl-11"
-                required
-              />
-            </div>
+                <Input
+                  type="number"
+                  name="heightInch"
+                  min={0}
+                  max={11}
+                  value={heightInch}
+                  onChange={(e) => handleHeightChange("inch", e.target.value)}
+                  placeholder="इंच"
+                  className="pl-11"
+                />
+              </div>
             </div>
           </FormField>
           <FormField label="रंग" error={errors.complexion} required>
@@ -1158,11 +1190,7 @@ const RegistrationForm = () => {
           शैक्षणिक योग्यता एवं व्यवसाय
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField
-            label="शैक्षणिक योग्यता"
-            error={errors.education}
-            required
-          >
+          <FormField label="शैक्षणिक योग्यता" error={errors.education} required>
             <div className="relative">
               <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <div className="relative">
@@ -1214,11 +1242,7 @@ const RegistrationForm = () => {
             </div>
           </FormField> */}
 
-          <FormField
-            label="व्यवसाय"
-            error={errors.occupation}
-            required
-          >
+          <FormField label="व्यवसाय" error={errors.occupation} required>
             <div className="relative">
               <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
 
@@ -1247,14 +1271,14 @@ const RegistrationForm = () => {
           </FormField>
           <FormField
             label="मासिक आय"
-            error={errors.fatherIncome}
+            error={errors.monthlyIncome} // ✅ Changed from fatherIncome
             required
           >
             <div className="relative">
               <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
-                name="fatherIncome"
-                value={formData.fatherIncome}
+                name="monthlyIncome" // ✅ Changed from fatherIncome
+                value={formData.monthlyIncome} // ✅ Changed
                 onChange={handleChange}
                 placeholder="40000"
                 className="pl-11"
@@ -1265,6 +1289,7 @@ const RegistrationForm = () => {
       </div>
 
       {/* Section: अभिभावक / पिता का विवरण */}
+      {/* Section: अभिभावक / पिता का विवरण */}
       <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
         <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
           <Users className="w-5 h-5" />
@@ -1273,23 +1298,21 @@ const RegistrationForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             label="व्यवसाय"
-            error={errors.occupation}
+            error={errors.fatherOccupation} // ✅ Changed
             required
           >
             <div className="relative">
               <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
-
               <Select
-                value={formData.occupation}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, occupation: value })
+                value={formData.fatherOccupation} // ✅ Changed
+                onValueChange={
+                  (value) =>
+                    setFormData({ ...formData, fatherOccupation: value }) // ✅ Changed
                 }
               >
                 <SelectTrigger className="pl-11">
                   <SelectValue placeholder="चयन करें" />
                 </SelectTrigger>
-
-                {/* 👇 force dropdown to open BELOW */}
                 <SelectContent side="bottom" align="start">
                   <SelectItem value="नौकरी">नौकरी</SelectItem>
                   <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
@@ -1303,11 +1326,7 @@ const RegistrationForm = () => {
             </div>
           </FormField>
 
-          <FormField
-            label="मासिक आय"
-            error={errors.fatherIncome}
-            required
-          >
+          <FormField label="मासिक आय" error={errors.fatherIncome} required>
             <div className="relative">
               <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
@@ -1369,11 +1388,7 @@ const RegistrationForm = () => {
 
         {/* District + Tehsil */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            label="जिला"
-            error={errors.district}
-            required
-          >
+          <FormField label="जिला" error={errors.district} required>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
@@ -1386,11 +1401,7 @@ const RegistrationForm = () => {
             </div>
           </FormField>
 
-          <FormField
-            label="तहसील"
-            error={errors.tehsil}
-            required
-          >
+          <FormField label="तहसील" error={errors.tehsil} required>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
@@ -1437,6 +1448,7 @@ const RegistrationForm = () => {
             label="अभिभावक मोबाइल नंबर"
             error={errors.guardianMobileNumbers}
             phone
+            required
           >
             <div className="space-y-3">
               {formData.guardianMobileNumbers.map((number, index) => (
