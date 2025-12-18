@@ -39,7 +39,7 @@ const EventHeader = () => {
             देवास जिला, गुर्जर गौड ब्राह्मण समाज द्वारा आयोजित
           </h1>
           <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-gold animate-fade-in animation-delay-300">
-            अखिल भारतीय पाँचवा (निःशुल्क) युवक-युवती परिचय सम्मेलन - 2026
+            अखिल भारतीय पाँचवा निःशुल्क युवक-युवती परिचय सम्मेलन 2026
           </h2>
         </div>
 
@@ -90,5 +90,6 @@ const EventHeader = () => {
 };
 
 export default EventHeader;
+
 
 
