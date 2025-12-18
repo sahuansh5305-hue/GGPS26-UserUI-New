@@ -36,10 +36,10 @@ const EventHeader = () => {
             ॥ ॐ तस्मैः नमः गुरु गौतमाय ॥
           </p>
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-secondary-foreground leading-relaxed animate-fade-in animation-delay-200">
-            देवास जिला गुर्जर गौंड ब्राह्मण समाज द्वारा आयोजित
+            देवास जिला, गुर्जर गौड ब्राह्मण समाज द्वारा आयोजित
           </h1>
           <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-gold animate-fade-in animation-delay-300">
-            अखिल भारतीय पाँचवा निःशुल्क युवक-युवती परिचय सम्मेलन 2026
+            अखिल भारतीय पाँचवा (निःशुल्क) युवक-युवती परिचय सम्मेलन - 2026
           </h2>
         </div>
 
@@ -90,4 +90,5 @@ const EventHeader = () => {
 };
 
 export default EventHeader;
+
 
