@@ -1,5 +1,5 @@
 import Cropper from "react-easy-crop";
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -333,61 +333,6 @@ const RegistrationForm = () => {
     }
   };
 
-  // const validateForm = (): boolean => {
-  //   const newErrors: FormErrors = {};
-
-  //   const requiredFields = [
-  //     "candidateName",
-  //     "fatherName",
-  //     "motherName",
-  //     "birthDate",
-  //     "birthTime",
-  //     "birthPlace",
-  //     "parichay",
-  //     "nakshatra",
-  //     "charan",
-  //     "rashi",
-  //     "nadi",
-  //     "manglik",
-  //     "patrikaRequired",
-  //     "height",
-  //     "complexion",
-  //     "weight",
-  //     "gotra",
-  //     "nanihal",
-  //     "education",
-  //     "occupation",
-  //     "monthlyIncome",
-  //     "fatherOccupation",
-  //     "fatherIncome",
-  //     "fullAddress",
-  //     "tehsil",
-  //     "district",
-  //   ];
-
-  //   requiredFields.forEach((key) => {
-  //     const error = validateField(
-  //       key,
-  //       formData[key as keyof FormData] as string
-  //     );
-  //     if (error) {
-  //       newErrors[key] = error;
-  //     }
-  //   });
-
-  //   const mobileError = validateField("mobileNumbers", formData.mobileNumbers);
-  //   if (mobileError) {
-  //     newErrors.mobileNumbers = mobileError;
-  //   }
-
-  //   const photoError = validateImage(formData.photo);
-  //   if (photoError) {
-  //     newErrors.photo = photoError;
-  //   }
-
-  //   setErrors(newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
   // When either field changes
   const handleHeightChange = (field: "feet" | "inch", value: string) => {
     // Update local state for display
@@ -463,6 +408,15 @@ const RegistrationForm = () => {
       }
     });
 
+    console.log("Validating photo:", formData.photo);
+    const photoError = validateImage(formData.photo);
+    console.log("Photo error:", photoError);
+
+    if (photoError) {
+      newErrors.photo = photoError;
+    }
+    console.log("All errors:", newErrors); // ✅ ADD THIS LINE TOO
+
     // Validate guardian mobile numbers
     const guardianMobileError = validateField(
       "guardianMobileNumbers",
@@ -500,20 +454,6 @@ const RegistrationForm = () => {
 
     return undefined;
   };
-
-  // const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0] || null;
-
-  //   setFormData((prev) => ({ ...prev, photo: file }));
-
-  //   const error = validateImage(file);
-  //   setErrors((prev) => ({ ...prev, photo: error }));
-  // };
-
-  const photoError = validateImage(formData.photo);
-  if (photoError) {
-    // newErrors.photo = photoError;
-  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -579,29 +519,40 @@ const RegistrationForm = () => {
   };
 
   const fetchAddressFromPincode = async (pin: string) => {
-    if (pin.length !== 6) return;
+  if (pin.length !== 6) return;
 
-    try {
-      setIsFetchingPin(true);
+  try {
+    setIsFetchingPin(true);
 
-      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
-      const data = await res.json();
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+    const data = await res.json();
 
-      if (data[0]?.Status === "Success") {
-        const postOffice = data[0].PostOffice[0];
+    if (data[0]?.Status === "Success") {
+      const postOffice = data[0].PostOffice[0];
 
-        setFormData((prev) => ({
-          ...prev,
-          district: postOffice.District || "",
-          tehsil: postOffice.Block || "",
-        }));
-      }
-    } catch (err) {
-      console.error("Pincode fetch failed", err);
-    } finally {
-      setIsFetchingPin(false);
+      setFormData((prev) => ({
+        ...prev,
+        district: postOffice.District || "",
+        tehsil: postOffice.Block || "",
+      }));
+      
+      // ✅ Clear errors when auto-filled
+      setErrors((prev) => ({
+        ...prev,
+        district: undefined,
+        tehsil: undefined,
+      }));
     }
-  };
+  } catch (err) {
+    console.error("Pincode fetch failed", err);
+  } finally {
+    setIsFetchingPin(false);
+  }
+};
+
+  useEffect(() => {
+    console.log("Photo state changed:", formData.photo);
+  }, [formData.photo]);
 
   const getCroppedImg = async (imageSrc: string, crop: any): Promise<File> => {
     const image = new Image();
@@ -644,6 +595,9 @@ const RegistrationForm = () => {
     reader.onload = () => {
       setImageSrc(reader.result as string);
       setShowCropModal(true);
+
+      // ✅ Clear error when user selects an image
+      setErrors((prev) => ({ ...prev, photo: undefined }));
     };
     reader.readAsDataURL(file);
   };
@@ -656,8 +610,21 @@ const RegistrationForm = () => {
 
     const croppedFile = await getCroppedImg(imageSrc, croppedAreaPixels);
 
-    setFormData((prev) => ({ ...prev, photo: croppedFile }));
+    console.log("Cropped file:", croppedFile);
+    console.log("File type:", croppedFile.type);
+    console.log("File size:", croppedFile.size);
+
+    // ✅ Use callback form to ensure we're working with latest state
+    setFormData((prev) => {
+      console.log("Previous photo:", prev.photo);
+      const newData = { ...prev, photo: croppedFile };
+      console.log("New photo:", newData.photo);
+      return newData;
+    });
+
+    setErrors((prev) => ({ ...prev, photo: undefined }));
     setShowCropModal(false);
+    setImageSrc(null); // ✅ Clear the image source too
   };
 
   // 🔤 Google Hindi Transliteration Helper
@@ -865,10 +832,19 @@ const RegistrationForm = () => {
             />
 
             <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setShowCropModal(false)}>
+              <Button
+                type="button" // ✅ Add this
+                variant="outline"
+                onClick={() => setShowCropModal(false)}
+              >
                 रद्द करें
               </Button>
-              <Button onClick={saveCroppedImage}>सेव करें</Button>
+              <Button
+                type="button" // ✅ Add this
+                onClick={saveCroppedImage}
+              >
+                सेव करें
+              </Button>
             </div>
           </div>
         </div>
@@ -1148,9 +1124,10 @@ const RegistrationForm = () => {
 
               <Select
                 value={formData.complexion}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, complexion: value })
-                }
+                onValueChange={(value) => {
+                  setFormData({ ...formData, complexion: value });
+                  setErrors((prev) => ({ ...prev, complexion: undefined }));
+                }}
               >
                 <SelectTrigger className="pl-11">
                   <SelectValue placeholder="चयन करें" />
@@ -1170,13 +1147,29 @@ const RegistrationForm = () => {
           <FormField label="वजन (किलोग्राम)" error={errors.weight} required>
             <div className="relative">
               <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+
               <Input
                 name="weight"
                 type="number"
+                min={0} // 🔒 arrow se minus nahi jayega
+                step={1}
                 value={formData.weight}
-                onChange={handleChange}
                 placeholder="65"
                 className="pl-11"
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // 🔒 manual typing / paste se bhi minus block
+                  if (val === "" || Number(val) >= 0) {
+                    handleChange(e);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // 🔒 "-" key completely disable
+                  if (e.key === "-" || e.key === "e") {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
           </FormField>
@@ -1205,52 +1198,16 @@ const RegistrationForm = () => {
             </div>
           </FormField>
 
-          {/* <FormField
-            label="प्रत्याशी का वर्तमान व्यवसाय"
-            error={errors.occupation}
-            hint="आप वर्तमान में क्या कार्य करते हैं"
-            required
-          >
-            <div className="relative">
-              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-
-              <select
-                name="occupation"
-                value={formData.occupation}
-                onChange={handleChange}
-                required
-                className="flex h-10 w-full appearance-none rounded-md border border-input bg-background pl-11 pr-10 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="">— चयन करें —</option>
-                <option value="नौकरी">नौकरी</option>
-                <option value="व्यवसाय">व्यवसाय</option>
-                <option value="स्वरोज़गार">स्वरोज़गार</option>
-                <option value="कृषि">कृषि</option>
-                <option value="शिक्षक">शिक्षक</option>
-                <option value="सरकारी सेवा">सरकारी सेवा</option>
-                <option value="निजी सेवा">निजी सेवा</option>
-                <option value="फ्रीलांसर">फ्रीलांसर</option>
-                <option value="छात्र">छात्र</option>
-                <option value="गृहिणी">गृहिणी</option>
-                <option value="सेवानिवृत्त">सेवानिवृत्त</option>
-                <option value="अन्य">अन्य</option>
-              </select>
-
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                ▼
-              </span>
-            </div>
-          </FormField> */}
-
           <FormField label="व्यवसाय" error={errors.occupation} required>
             <div className="relative">
               <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
 
               <Select
                 value={formData.occupation}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, occupation: value })
-                }
+                onValueChange={(value) => {
+                  setFormData({ ...formData, occupation: value });
+                  setErrors((prev) => ({ ...prev, occupation: undefined }));
+                }}
               >
                 <SelectTrigger className="pl-11">
                   <SelectValue placeholder="चयन करें" />
@@ -1269,26 +1226,38 @@ const RegistrationForm = () => {
               </Select>
             </div>
           </FormField>
-          <FormField
-            label="मासिक आय"
-            error={errors.monthlyIncome} // ✅ Changed from fatherIncome
-            required
-          >
+          <FormField label="मासिक आय" error={errors.monthlyIncome} required>
             <div className="relative">
               <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+
               <Input
-                name="monthlyIncome" // ✅ Changed from fatherIncome
-                value={formData.monthlyIncome} // ✅ Changed
-                onChange={handleChange}
+                name="monthlyIncome"
+                type="text" // ✅ number → text
+                inputMode="numeric" // ✅ mobile numeric keypad
+                pattern="[0-9]*" // ✅ digits only
+                value={formData.monthlyIncome}
                 placeholder="40000"
                 className="pl-11"
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  // ✅ allow only digits (no minus, no dot, no e)
+                  if (/^\d*$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // ✅ hard block minus, e, dot
+                  if (["-", "e", ".", "+"].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
           </FormField>
         </div>
       </div>
 
-      {/* Section: अभिभावक / पिता का विवरण */}
       {/* Section: अभिभावक / पिता का विवरण */}
       <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
         <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
@@ -1304,11 +1273,14 @@ const RegistrationForm = () => {
             <div className="relative">
               <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
               <Select
-                value={formData.fatherOccupation} // ✅ Changed
-                onValueChange={
-                  (value) =>
-                    setFormData({ ...formData, fatherOccupation: value }) // ✅ Changed
-                }
+                value={formData.fatherOccupation}
+                onValueChange={(value) => {
+                  setFormData({ ...formData, fatherOccupation: value });
+                  setErrors((prev) => ({
+                    ...prev,
+                    fatherOccupation: undefined,
+                  }));
+                }}
               >
                 <SelectTrigger className="pl-11">
                   <SelectValue placeholder="चयन करें" />
@@ -1331,10 +1303,25 @@ const RegistrationForm = () => {
               <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 name="fatherIncome"
+                inputMode="numeric" // ✅ mobile numeric keypad
+                pattern="[0-9]*" // ✅ digits only
                 value={formData.fatherIncome}
-                onChange={handleChange}
                 placeholder="40000"
                 className="pl-11"
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  // ✅ allow only digits (no minus, no dot, no e)
+                  if (/^\d*$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // ✅ hard block minus, e, dot
+                  if (["-", "e", ".", "+"].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
           </FormField>
@@ -1349,18 +1336,33 @@ const RegistrationForm = () => {
         </h4>
 
         {/* Full Address */}
-        <FormField label="पूर्ण पता" error={errors.fullAddress} required>
-          <div className="relative">
-            <Textarea
-              name="fullAddress"
-              value={formData.fullAddress}
-              onChange={handleChange}
-              rows={1}
-              placeholder="मकान नंबर 123, गली नंबर 5, सेक्टर 4, भोपाल"
-            />
-            <HindiSuggestionBox field="fullAddress" />
-          </div>
-        </FormField>
+       <FormField label="पूर्ण पता" error={errors.fullAddress} required>
+  <div className="relative">
+    <Textarea
+      name="fullAddress"
+      value={formData.fullAddress}
+      rows={1}
+      placeholder="मकान नंबर 123, गली नंबर 5, सेक्टर 4, भोपाल"
+      onChange={(e) => {
+        const value = e.target.value;
+
+        // split by spaces & filter empty
+        const words = value.trim().split(/\s+/).filter(Boolean);
+
+        if (words.length <= 50) {
+          handleChange(e);
+        }
+      }}
+    />
+    <HindiSuggestionBox field="fullAddress" />
+  </div>
+
+  {/* optional helper text */}
+  <p className="text-xs text-muted-foreground mt-1">
+    अधिकतम 100 शब्द
+  </p>
+</FormField>
+
 
         {/* PIN CODE */}
         <FormField label="पिन कोड">
@@ -1392,12 +1394,13 @@ const RegistrationForm = () => {
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
+                name="district" // ✅ Make sure name is set
                 value={formData.district}
-                onChange={handleChange}
-                name="district"
+                onChange={handleChange} // ✅ Use handleChange which clears errors
                 className="pl-11"
                 placeholder="भोपाल"
               />
+           <HindiSuggestionBox field="district" />
             </div>
           </FormField>
 
@@ -1405,12 +1408,13 @@ const RegistrationForm = () => {
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
+                name="tehsil" // ✅ Make sure name is set
                 value={formData.tehsil}
-                onChange={handleChange}
-                name="tehsil"
+                onChange={handleChange} // ✅ Use handleChange which clears errors
                 className="pl-11"
                 placeholder="हुजूर"
               />
+              <HindiSuggestionBox field="tehsil" />
             </div>
           </FormField>
         </div>
