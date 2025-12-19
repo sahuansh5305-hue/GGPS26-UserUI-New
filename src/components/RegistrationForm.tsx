@@ -519,36 +519,36 @@ const RegistrationForm = () => {
   };
 
   const fetchAddressFromPincode = async (pin: string) => {
-  if (pin.length !== 6) return;
+    if (pin.length !== 6) return;
 
-  try {
-    setIsFetchingPin(true);
+    try {
+      setIsFetchingPin(true);
 
-    const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
-    const data = await res.json();
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+      const data = await res.json();
 
-    if (data[0]?.Status === "Success") {
-      const postOffice = data[0].PostOffice[0];
+      if (data[0]?.Status === "Success") {
+        const postOffice = data[0].PostOffice[0];
 
-      setFormData((prev) => ({
-        ...prev,
-        district: postOffice.District || "",
-        tehsil: postOffice.Block || "",
-      }));
-      
-      // ✅ Clear errors when auto-filled
-      setErrors((prev) => ({
-        ...prev,
-        district: undefined,
-        tehsil: undefined,
-      }));
+        setFormData((prev) => ({
+          ...prev,
+          district: postOffice.District || "",
+          tehsil: postOffice.Block || "",
+        }));
+
+        // ✅ Clear errors when auto-filled
+        setErrors((prev) => ({
+          ...prev,
+          district: undefined,
+          tehsil: undefined,
+        }));
+      }
+    } catch (err) {
+      console.error("Pincode fetch failed", err);
+    } finally {
+      setIsFetchingPin(false);
     }
-  } catch (err) {
-    console.error("Pincode fetch failed", err);
-  } finally {
-    setIsFetchingPin(false);
-  }
-};
+  };
 
   useEffect(() => {
     console.log("Photo state changed:", formData.photo);
@@ -671,862 +671,879 @@ const RegistrationForm = () => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-8 animate-fade-in animation-delay-200"
-    >
-      {/* Form title */}
-      <div className="text-center mb-8">
-        <h3 className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
-          प्रत्याशी पंजीकरण फॉर्म
-        </h3>
-      </div>
+    <div className="relative">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-8 animate-fade-in animation-delay-200 animate-fade-in animation-delay-200 pointer-events-none"
+      >
+        {/* Form title */}
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
+            प्रत्याशी पंजीकरण फॉर्म
+          </h3>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Section: परिचय */}
-        <div className="lg:col-span-8 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-          {/* <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Section: परिचय */}
+          <div className="lg:col-span-8 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+            {/* <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
             <Star className="w-5 h-5" />
             परिचय
           </h4> */}
 
-          <FormField label="परिचय" error={errors.parichay} required user>
-            <RadioGroup
-              value={formData.parichay}
-              onValueChange={(value) => handleSelectChange("parichay", value)}
-              className="grid md:grid-cols-2 sm:grid-cols-3 gap-y-10"
-            >
-              {PARICHAY_OPTIONS.map((option) => (
-                <div key={option.value} className="flex items-center space-x-2">
-                  <RadioGroupItem
-                    value={option.value}
-                    id={option.value}
-                    className="border-maroon text-maroon"
-                  />
-                  <Label
-                    htmlFor={option.value}
-                    className="text-foreground cursor-pointer"
+            <FormField label="परिचय" error={errors.parichay} required user>
+              <RadioGroup
+                value={formData.parichay}
+                onValueChange={(value) => handleSelectChange("parichay", value)}
+                className="grid md:grid-cols-2 sm:grid-cols-3 gap-y-10"
+              >
+                {PARICHAY_OPTIONS.map((option) => (
+                  <div
+                    key={option.value}
+                    className="flex items-center space-x-2"
                   >
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </FormField>
-        </div>
+                    <RadioGroupItem
+                      value={option.value}
+                      id={option.value}
+                      className="border-maroon text-maroon"
+                    />
+                    <Label
+                      htmlFor={option.value}
+                      className="text-foreground cursor-pointer"
+                    >
+                      {option.label}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </FormField>
+          </div>
 
-        {/* Section: प्रत्याशी की फोटो */}
-        <div className="lg:col-span-4 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20 flex flex-col items-center">
-          <FormField
-            label="प्रत्याशी की फोटो"
-            error={errors.photo}
-            required
-            user
-          >
-            <label
-              className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48
+          {/* Section: प्रत्याशी की फोटो */}
+          <div className="lg:col-span-4 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20 flex flex-col items-center">
+            <FormField
+              label="प्रत्याशी की फोटो"
+              error={errors.photo}
+              required
+              user
+            >
+              <label
+                className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48
                      flex items-center justify-center rounded-xl
                      border-2 border-dashed border-maroon cursor-pointer"
-            >
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-
-              {!formData.photo ? (
-                <User className="w-12 h-12 text-maroon/50" />
-              ) : (
-                <img
-                  src={URL.createObjectURL(formData.photo)}
-                  className="w-full h-full rounded-xl object-cover"
+              >
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-              )}
-            </label>
-          </FormField>
-          <div className="flex">
-            <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-              फोटो अपलोड करें
-            </h4>
-            <span className="text-destructive ml-1">*</span>
-          </div>
-        </div>
-      </div>
 
-      {/* Section: व्यक्तिगत विवरण */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <User className="w-5 h-5" />
-          व्यक्तिगत विवरण
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            label="प्रत्याशी का नाम"
-            error={errors.candidateName}
-            required
-          >
-            <div className="relative">
-              <Input
-                name="candidateName"
-                value={formData.candidateName}
-                onChange={handleChange}
-                placeholder="सुमित शर्मा"
-              />
-              <HindiSuggestionBox field="candidateName" />
-            </div>
-          </FormField>
-
-          <FormField label="पिता का नाम" error={errors.fatherName} required>
-            <div className="relative">
-              <Input
-                name="fatherName"
-                value={formData.fatherName}
-                onChange={handleChange}
-                placeholder="महेश शर्मा"
-              />
-              <HindiSuggestionBox field="fatherName" />
-            </div>
-          </FormField>
-
-          <FormField label="माता का नाम" error={errors.motherName} required>
-            <div className="relative">
-              <Input
-                name="motherName"
-                value={formData.motherName}
-                onChange={handleChange}
-                placeholder="सुनीता शर्मा"
-              />
-              <HindiSuggestionBox field="motherName" />
-            </div>
-          </FormField>
-        </div>
-      </div>
-
-      {showCropModal && (
-        <div className="fixed inset-0 z-50 items-start bg-black/70 flex justify-center">
-          <div className="bg-white rounded-xl w-[90vw] max-w-md p-4 space-y-4">
-            <h4 className="text-lg font-semibold text-center">
-              फोटो क्रॉप करें
-            </h4>
-
-            <div className="relative w-full h-64 bg-black">
-              <Cropper
-                image={imageSrc!}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-            </div>
-
-            <input
-              type="range"
-              min={1}
-              max={3}
-              step={0.1}
-              value={zoom}
-              onChange={(e) => setZoom(+e.target.value)}
-            />
-
-            <div className="flex justify-between">
-              <Button
-                type="button" // ✅ Add this
-                variant="outline"
-                onClick={() => setShowCropModal(false)}
-              >
-                रद्द करें
-              </Button>
-              <Button
-                type="button" // ✅ Add this
-                onClick={saveCroppedImage}
-              >
-                सेव करें
-              </Button>
+                {!formData.photo ? (
+                  <User className="w-12 h-12 text-maroon/50" />
+                ) : (
+                  <img
+                    src={URL.createObjectURL(formData.photo)}
+                    className="w-full h-full rounded-xl object-cover"
+                  />
+                )}
+              </label>
+            </FormField>
+            <div className="flex">
+              <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+                फोटो अपलोड करें
+              </h4>
+              <span className="text-destructive ml-1">*</span>
             </div>
           </div>
         </div>
-      )}
 
-      {/* Section: जन्म विवरण */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <Calendar className="w-5 h-5" />
-          जन्म विवरण
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FormField label="जन्म दिनांक" error={errors.birthDate} required>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
-              <Input
-                type="date"
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleChange}
-                className="pl-11"
-              />
-            </div>
-          </FormField>
-
-          <FormField label="जन्म समय" error={errors.birthTime} required>
-            <div className="relative">
-              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
-              <Input
-                type="time"
-                name="birthTime"
-                value={formData.birthTime}
-                onChange={handleChange}
-                className="pl-11"
-              />
-            </div>
-          </FormField>
-
-          <FormField label="जन्म स्थान" error={errors.birthPlace} required>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        {/* Section: व्यक्तिगत विवरण */}
+        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <User className="w-5 h-5" />
+            व्यक्तिगत विवरण
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              label="प्रत्याशी का नाम"
+              error={errors.candidateName}
+              required
+            >
               <div className="relative">
                 <Input
-                  name="birthPlace"
-                  value={formData.birthPlace}
+                  name="candidateName"
+                  value={formData.candidateName}
                   onChange={handleChange}
-                  placeholder="देवास, मध्य प्रदेश"
+                  placeholder="सुमित शर्मा"
                 />
-                <HindiSuggestionBox field="birthPlace" />
+                <HindiSuggestionBox field="candidateName" />
               </div>
-            </div>
-          </FormField>
-        </div>
-      </div>
+            </FormField>
 
-      {/* Section: कुंडली विवरण */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <Sparkles className="w-5 h-5" />
-          कुंडली विवरण
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FormField label="नक्षत्र" error={errors.nakshatra} required>
-            <Select
-              value={formData.nakshatra}
-              onValueChange={(value) => handleSelectChange("nakshatra", value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="नक्षत्र चुनें" />
-              </SelectTrigger>
-              <SelectContent>
-                {NAKSHATRAS.map((nakshatra) => (
-                  <SelectItem key={nakshatra} value={nakshatra}>
-                    {nakshatra}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
-
-          <FormField label="चरण" error={errors.charan} required>
-            <Select
-              value={formData.charan}
-              onValueChange={(value) => handleSelectChange("charan", value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="चरण चुनें" />
-              </SelectTrigger>
-              <SelectContent>
-                {CHARANS.map((charan) => (
-                  <SelectItem key={charan} value={charan}>
-                    {charan}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
-
-          <FormField label="राशि" error={errors.rashi} required>
-            <Select
-              value={formData.rashi}
-              onValueChange={(value) => handleSelectChange("rashi", value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="राशि चुनें" />
-              </SelectTrigger>
-              <SelectContent>
-                {RASHIS.map((rashi) => (
-                  <SelectItem key={rashi} value={rashi}>
-                    {rashi}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
-
-          <FormField label="नाड़ी" error={errors.nadi} required>
-            <Select
-              value={formData.nadi}
-              onValueChange={(value) => handleSelectChange("nadi", value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="नाड़ी चुनें" />
-              </SelectTrigger>
-              <SelectContent>
-                {NADIS.map((nadi) => (
-                  <SelectItem key={nadi} value={nadi}>
-                    {nadi}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
-
-          <FormField label="मांगलिक" error={errors.manglik} required>
-            <RadioGroup
-              value={formData.manglik}
-              onValueChange={(value) => handleSelectChange("manglik", value)}
-              className="flex gap-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="हाँ"
-                  id="manglik-yes"
-                  className="border-maroon text-maroon"
-                />
-                <Label htmlFor="manglik-yes" className="cursor-pointer">
-                  हाँ
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="नहीं"
-                  id="manglik-no"
-                  className="border-maroon text-maroon"
-                />
-                <Label htmlFor="manglik-no" className="cursor-pointer">
-                  नहीं
-                </Label>
-              </div>
-            </RadioGroup>
-          </FormField>
-
-          <FormField
-            label="पत्रिका मिलान आवश्यक है?"
-            error={errors.patrikaRequired}
-            required
-          >
-            <RadioGroup
-              value={formData.patrikaRequired}
-              onValueChange={(value) =>
-                handleSelectChange("patrikaRequired", value)
-              }
-              className="flex gap-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="हाँ"
-                  id="patrika-yes"
-                  className="border-maroon text-maroon"
-                />
-                <Label htmlFor="patrika-yes" className="cursor-pointer">
-                  हाँ
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="नहीं"
-                  id="patrika-no"
-                  className="border-maroon text-maroon"
-                />
-                <Label htmlFor="patrika-no" className="cursor-pointer">
-                  नहीं
-                </Label>
-              </div>
-            </RadioGroup>
-          </FormField>
-        </div>
-      </div>
-
-      {/* Section: गोत्र एवं ननिहाल */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <Users className="w-5 h-5" />
-          गोत्र(स्वयं एवं ननिहाल)
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField label="स्वयं" error={errors.gotra} required>
-            <div className="relative">
-              <Input
-                name="gotra"
-                value={formData.gotra}
-                onChange={handleChange}
-                placeholder="कश्यप"
-              />
-              <HindiSuggestionBox field="gotra" />
-            </div>
-          </FormField>
-
-          <FormField label="ननिहाल" error={errors.nanihal} required>
-            <div className="relative">
-              <Input
-                name="nanihal"
-                value={formData.nanihal}
-                onChange={handleChange}
-                placeholder="भारद्वाज"
-              />
-              <HindiSuggestionBox field="nanihal" />
-            </div>
-          </FormField>
-        </div>
-      </div>
-
-      {/* Section: शारीरिक विवरण */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <Ruler className="w-5 h-5" />
-          शारीरिक विवरण
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField label="ऊँचाई" error={errors.height}>
-            <div className="grid grid-cols-2 gap-4">
-              {/* Feet */}
+            <FormField label="पिता का नाम" error={errors.fatherName} required>
               <div className="relative">
-                <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
-                  type="number"
-                  name="heightFeet"
-                  min={1}
-                  max={8}
-                  value={heightFeet}
-                  onChange={(e) => handleHeightChange("feet", e.target.value)}
-                  placeholder="फीट"
+                  name="fatherName"
+                  value={formData.fatherName}
+                  onChange={handleChange}
+                  placeholder="महेश शर्मा"
+                />
+                <HindiSuggestionBox field="fatherName" />
+              </div>
+            </FormField>
+
+            <FormField label="माता का नाम" error={errors.motherName} required>
+              <div className="relative">
+                <Input
+                  name="motherName"
+                  value={formData.motherName}
+                  onChange={handleChange}
+                  placeholder="सुनीता शर्मा"
+                />
+                <HindiSuggestionBox field="motherName" />
+              </div>
+            </FormField>
+          </div>
+        </div>
+
+        {showCropModal && (
+          <div className="fixed inset-0 z-50 items-start bg-black/70 flex justify-center">
+            <div className="bg-white rounded-xl w-[90vw] max-w-md p-4 space-y-4">
+              <h4 className="text-lg font-semibold text-center">
+                फोटो क्रॉप करें
+              </h4>
+
+              <div className="relative w-full h-64 bg-black">
+                <Cropper
+                  image={imageSrc!}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              </div>
+
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(+e.target.value)}
+              />
+
+              <div className="flex justify-between">
+                <Button
+                  type="button" // ✅ Add this
+                  variant="outline"
+                  onClick={() => setShowCropModal(false)}
+                >
+                  रद्द करें
+                </Button>
+                <Button
+                  type="button" // ✅ Add this
+                  onClick={saveCroppedImage}
+                >
+                  सेव करें
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section: जन्म विवरण */}
+        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            जन्म विवरण
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <FormField label="जन्म दिनांक" error={errors.birthDate} required>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
+                <Input
+                  type="date"
+                  name="birthDate"
+                  value={formData.birthDate}
+                  onChange={handleChange}
                   className="pl-11"
                 />
               </div>
+            </FormField>
 
-              {/* Inch */}
+            <FormField label="जन्म समय" error={errors.birthTime} required>
               <div className="relative">
-                <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
                 <Input
-                  type="number"
-                  name="heightInch"
-                  min={0}
-                  max={11}
-                  value={heightInch}
-                  onChange={(e) => handleHeightChange("inch", e.target.value)}
-                  placeholder="इंच"
+                  type="time"
+                  name="birthTime"
+                  value={formData.birthTime}
+                  onChange={handleChange}
                   className="pl-11"
                 />
               </div>
-            </div>
-          </FormField>
-          <FormField label="रंग" error={errors.complexion} required>
-            <div className="relative">
-              <Palette className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
+            </FormField>
 
-              <Select
-                value={formData.complexion}
-                onValueChange={(value) => {
-                  setFormData({ ...formData, complexion: value });
-                  setErrors((prev) => ({ ...prev, complexion: undefined }));
-                }}
-              >
-                <SelectTrigger className="pl-11">
-                  <SelectValue placeholder="चयन करें" />
-                </SelectTrigger>
-
-                {/* dropdown ALWAYS opens below */}
-                <SelectContent side="bottom" align="start">
-                  <SelectItem value="गोरा">गौर</SelectItem>
-                  <SelectItem value="गेहुआ">गेहुआ</SelectItem>
-                  <SelectItem value="सांवला">सांवला</SelectItem>
-                  <SelectItem value="श्याम">श्याम</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </FormField>
-
-          <FormField label="वजन (किलोग्राम)" error={errors.weight} required>
-            <div className="relative">
-              <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-
-              <Input
-                name="weight"
-                type="number"
-                min={0} // 🔒 arrow se minus nahi jayega
-                step={1}
-                value={formData.weight}
-                placeholder="65"
-                className="pl-11"
-                onChange={(e) => {
-                  const val = e.target.value;
-
-                  // 🔒 manual typing / paste se bhi minus block
-                  if (val === "" || Number(val) >= 0) {
-                    handleChange(e);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  // 🔒 "-" key completely disable
-                  if (e.key === "-" || e.key === "e") {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </div>
-          </FormField>
-        </div>
-      </div>
-
-      {/* Section: शिक्षा एवं व्यवसाय */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <GraduationCap className="w-5 h-5" />
-          शैक्षणिक योग्यता एवं व्यवसाय
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField label="शैक्षणिक योग्यता" error={errors.education} required>
-            <div className="relative">
-              <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <FormField label="जन्म स्थान" error={errors.birthPlace} required>
               <div className="relative">
-                <Input
-                  name="education"
-                  value={formData.education}
-                  onChange={handleChange}
-                  placeholder="स्नातक"
-                />
-                <HindiSuggestionBox field="education" />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <div className="relative">
+                  <Input
+                    name="birthPlace"
+                    value={formData.birthPlace}
+                    onChange={handleChange}
+                    placeholder="देवास, मध्य प्रदेश"
+                  />
+                  <HindiSuggestionBox field="birthPlace" />
+                </div>
               </div>
-            </div>
-          </FormField>
-
-          <FormField label="व्यवसाय" error={errors.occupation} required>
-            <div className="relative">
-              <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
-
-              <Select
-                value={formData.occupation}
-                onValueChange={(value) => {
-                  setFormData({ ...formData, occupation: value });
-                  setErrors((prev) => ({ ...prev, occupation: undefined }));
-                }}
-              >
-                <SelectTrigger className="pl-11">
-                  <SelectValue placeholder="चयन करें" />
-                </SelectTrigger>
-
-                {/* 👇 force dropdown to open BELOW */}
-                <SelectContent side="bottom" align="start">
-                  <SelectItem value="नौकरी">नौकरी</SelectItem>
-                  <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
-                  <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
-                  <SelectItem value="कृषि">कृषि</SelectItem>
-                  <SelectItem value="छात्र">छात्र</SelectItem>
-                  <SelectItem value="गृहिणी">गृहिणी</SelectItem>
-                  <SelectItem value="अन्य">अन्य</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </FormField>
-          <FormField label="मासिक आय" error={errors.monthlyIncome} required>
-            <div className="relative">
-              <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-
-              <Input
-                name="monthlyIncome"
-                type="text" // ✅ number → text
-                inputMode="numeric" // ✅ mobile numeric keypad
-                pattern="[0-9]*" // ✅ digits only
-                value={formData.monthlyIncome}
-                placeholder="40000"
-                className="pl-11"
-                onChange={(e) => {
-                  const value = e.target.value;
-
-                  // ✅ allow only digits (no minus, no dot, no e)
-                  if (/^\d*$/.test(value)) {
-                    handleChange(e);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  // ✅ hard block minus, e, dot
-                  if (["-", "e", ".", "+"].includes(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </div>
-          </FormField>
+            </FormField>
+          </div>
         </div>
-      </div>
 
-      {/* Section: अभिभावक / पिता का विवरण */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <Users className="w-5 h-5" />
-          अभिभावक / पिता का विवरण
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            label="व्यवसाय"
-            error={errors.fatherOccupation} // ✅ Changed
-            required
-          >
-            <div className="relative">
-              <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
+        {/* Section: कुंडली विवरण */}
+        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <Sparkles className="w-5 h-5" />
+            कुंडली विवरण
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <FormField label="नक्षत्र" error={errors.nakshatra} required>
               <Select
-                value={formData.fatherOccupation}
-                onValueChange={(value) => {
-                  setFormData({ ...formData, fatherOccupation: value });
-                  setErrors((prev) => ({
-                    ...prev,
-                    fatherOccupation: undefined,
-                  }));
-                }}
-              >
-                <SelectTrigger className="pl-11">
-                  <SelectValue placeholder="चयन करें" />
-                </SelectTrigger>
-                <SelectContent side="bottom" align="start">
-                  <SelectItem value="नौकरी">नौकरी</SelectItem>
-                  <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
-                  <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
-                  <SelectItem value="कृषि">कृषि</SelectItem>
-                  <SelectItem value="छात्र">छात्र</SelectItem>
-                  <SelectItem value="गृहिणी">गृहिणी</SelectItem>
-                  <SelectItem value="अन्य">अन्य</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </FormField>
-
-          <FormField label="मासिक आय" error={errors.fatherIncome} required>
-            <div className="relative">
-              <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                name="fatherIncome"
-                inputMode="numeric" // ✅ mobile numeric keypad
-                pattern="[0-9]*" // ✅ digits only
-                value={formData.fatherIncome}
-                placeholder="40000"
-                className="pl-11"
-                onChange={(e) => {
-                  const value = e.target.value;
-
-                  // ✅ allow only digits (no minus, no dot, no e)
-                  if (/^\d*$/.test(value)) {
-                    handleChange(e);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  // ✅ hard block minus, e, dot
-                  if (["-", "e", ".", "+"].includes(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </div>
-          </FormField>
-        </div>
-      </div>
-
-      {/* Section: पता विवरण */}
-      <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-        <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
-          <Home className="w-5 h-5" />
-          पता विवरण
-        </h4>
-
-        {/* Full Address */}
-       <FormField label="पूर्ण पता" error={errors.fullAddress} required>
-  <div className="relative">
-    <Textarea
-      name="fullAddress"
-      value={formData.fullAddress}
-      rows={1}
-      placeholder="मकान नंबर 123, गली नंबर 5, सेक्टर 4, भोपाल"
-      onChange={(e) => {
-        const value = e.target.value;
-
-        // split by spaces & filter empty
-        const words = value.trim().split(/\s+/).filter(Boolean);
-
-        if (words.length <= 50) {
-          handleChange(e);
-        }
-      }}
-    />
-    <HindiSuggestionBox field="fullAddress" />
-  </div>
-
-  {/* optional helper text */}
-  <p className="text-xs text-muted-foreground mt-1">
-    अधिकतम 100 शब्द
-  </p>
-</FormField>
-
-
-        {/* PIN CODE */}
-        <FormField label="पिन कोड">
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              value={pincode}
-              onChange={(e) => {
-                const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-                setPincode(val);
-                if (val.length === 6) {
-                  fetchAddressFromPincode(val);
+                value={formData.nakshatra}
+                onValueChange={(value) =>
+                  handleSelectChange("nakshatra", value)
                 }
-              }}
-              placeholder="455001"
-              className="pl-11"
-            />
-            {isFetchingPin && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                खोजा जा रहा है...
-              </span>
-            )}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="नक्षत्र चुनें" />
+                </SelectTrigger>
+                <SelectContent>
+                  {NAKSHATRAS.map((nakshatra) => (
+                    <SelectItem key={nakshatra} value={nakshatra}>
+                      {nakshatra}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+
+            <FormField label="चरण" error={errors.charan} required>
+              <Select
+                value={formData.charan}
+                onValueChange={(value) => handleSelectChange("charan", value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="चरण चुनें" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CHARANS.map((charan) => (
+                    <SelectItem key={charan} value={charan}>
+                      {charan}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+
+            <FormField label="राशि" error={errors.rashi} required>
+              <Select
+                value={formData.rashi}
+                onValueChange={(value) => handleSelectChange("rashi", value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="राशि चुनें" />
+                </SelectTrigger>
+                <SelectContent>
+                  {RASHIS.map((rashi) => (
+                    <SelectItem key={rashi} value={rashi}>
+                      {rashi}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+
+            <FormField label="नाड़ी" error={errors.nadi} required>
+              <Select
+                value={formData.nadi}
+                onValueChange={(value) => handleSelectChange("nadi", value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="नाड़ी चुनें" />
+                </SelectTrigger>
+                <SelectContent>
+                  {NADIS.map((nadi) => (
+                    <SelectItem key={nadi} value={nadi}>
+                      {nadi}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+
+            <FormField label="मांगलिक" error={errors.manglik} required>
+              <RadioGroup
+                value={formData.manglik}
+                onValueChange={(value) => handleSelectChange("manglik", value)}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value="हाँ"
+                    id="manglik-yes"
+                    className="border-maroon text-maroon"
+                  />
+                  <Label htmlFor="manglik-yes" className="cursor-pointer">
+                    हाँ
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value="नहीं"
+                    id="manglik-no"
+                    className="border-maroon text-maroon"
+                  />
+                  <Label htmlFor="manglik-no" className="cursor-pointer">
+                    नहीं
+                  </Label>
+                </div>
+              </RadioGroup>
+            </FormField>
+
+            <FormField
+              label="पत्रिका मिलान आवश्यक है?"
+              error={errors.patrikaRequired}
+              required
+            >
+              <RadioGroup
+                value={formData.patrikaRequired}
+                onValueChange={(value) =>
+                  handleSelectChange("patrikaRequired", value)
+                }
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value="हाँ"
+                    id="patrika-yes"
+                    className="border-maroon text-maroon"
+                  />
+                  <Label htmlFor="patrika-yes" className="cursor-pointer">
+                    हाँ
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value="नहीं"
+                    id="patrika-no"
+                    className="border-maroon text-maroon"
+                  />
+                  <Label htmlFor="patrika-no" className="cursor-pointer">
+                    नहीं
+                  </Label>
+                </div>
+              </RadioGroup>
+            </FormField>
           </div>
-        </FormField>
+        </div>
 
-        {/* District + Tehsil */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField label="जिला" error={errors.district} required>
+        {/* Section: गोत्र एवं ननिहाल */}
+        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            गोत्र(स्वयं एवं ननिहाल)
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField label="स्वयं" error={errors.gotra} required>
+              <div className="relative">
+                <Input
+                  name="gotra"
+                  value={formData.gotra}
+                  onChange={handleChange}
+                  placeholder="कश्यप"
+                />
+                <HindiSuggestionBox field="gotra" />
+              </div>
+            </FormField>
+
+            <FormField label="ननिहाल" error={errors.nanihal} required>
+              <div className="relative">
+                <Input
+                  name="nanihal"
+                  value={formData.nanihal}
+                  onChange={handleChange}
+                  placeholder="भारद्वाज"
+                />
+                <HindiSuggestionBox field="nanihal" />
+              </div>
+            </FormField>
+          </div>
+        </div>
+
+        {/* Section: शारीरिक विवरण */}
+        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <Ruler className="w-5 h-5" />
+            शारीरिक विवरण
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <FormField label="ऊँचाई" error={errors.height}>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Feet */}
+                <div className="relative">
+                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    name="heightFeet"
+                    min={1}
+                    max={8}
+                    value={heightFeet}
+                    onChange={(e) => handleHeightChange("feet", e.target.value)}
+                    placeholder="फीट"
+                    className="pl-11"
+                  />
+                </div>
+
+                {/* Inch */}
+                <div className="relative">
+                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    name="heightInch"
+                    min={0}
+                    max={11}
+                    value={heightInch}
+                    onChange={(e) => handleHeightChange("inch", e.target.value)}
+                    placeholder="इंच"
+                    className="pl-11"
+                  />
+                </div>
+              </div>
+            </FormField>
+            <FormField label="रंग" error={errors.complexion} required>
+              <div className="relative">
+                <Palette className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
+
+                <Select
+                  value={formData.complexion}
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, complexion: value });
+                    setErrors((prev) => ({ ...prev, complexion: undefined }));
+                  }}
+                >
+                  <SelectTrigger className="pl-11">
+                    <SelectValue placeholder="चयन करें" />
+                  </SelectTrigger>
+
+                  {/* dropdown ALWAYS opens below */}
+                  <SelectContent side="bottom" align="start">
+                    <SelectItem value="गोरा">गौर</SelectItem>
+                    <SelectItem value="गेहुआ">गेहुआ</SelectItem>
+                    <SelectItem value="सांवला">सांवला</SelectItem>
+                    <SelectItem value="श्याम">श्याम</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </FormField>
+
+            <FormField label="वजन (किलोग्राम)" error={errors.weight} required>
+              <div className="relative">
+                <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+
+                <Input
+                  name="weight"
+                  type="number"
+                  min={0} // 🔒 arrow se minus nahi jayega
+                  step={1}
+                  value={formData.weight}
+                  placeholder="65"
+                  className="pl-11"
+                  onChange={(e) => {
+                    const val = e.target.value;
+
+                    // 🔒 manual typing / paste se bhi minus block
+                    if (val === "" || Number(val) >= 0) {
+                      handleChange(e);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    // 🔒 "-" key completely disable
+                    if (e.key === "-" || e.key === "e") {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+            </FormField>
+          </div>
+        </div>
+
+        {/* Section: शिक्षा एवं व्यवसाय */}
+        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <GraduationCap className="w-5 h-5" />
+            शैक्षणिक योग्यता एवं व्यवसाय
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <FormField
+              label="शैक्षणिक योग्यता"
+              error={errors.education}
+              required
+            >
+              <div className="relative">
+                <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <div className="relative">
+                  <Input
+                    name="education"
+                    value={formData.education}
+                    onChange={handleChange}
+                    placeholder="स्नातक"
+                  />
+                  <HindiSuggestionBox field="education" />
+                </div>
+              </div>
+            </FormField>
+
+            <FormField label="व्यवसाय" error={errors.occupation} required>
+              <div className="relative">
+                <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
+
+                <Select
+                  value={formData.occupation}
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, occupation: value });
+                    setErrors((prev) => ({ ...prev, occupation: undefined }));
+                  }}
+                >
+                  <SelectTrigger className="pl-11">
+                    <SelectValue placeholder="चयन करें" />
+                  </SelectTrigger>
+
+                  {/* 👇 force dropdown to open BELOW */}
+                  <SelectContent side="bottom" align="start">
+                    <SelectItem value="नौकरी">नौकरी</SelectItem>
+                    <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
+                    <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
+                    <SelectItem value="कृषि">कृषि</SelectItem>
+                    <SelectItem value="छात्र">छात्र</SelectItem>
+                    <SelectItem value="गृहिणी">गृहिणी</SelectItem>
+                    <SelectItem value="अन्य">अन्य</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </FormField>
+            <FormField label="मासिक आय" error={errors.monthlyIncome} required>
+              <div className="relative">
+                <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+
+                <Input
+                  name="monthlyIncome"
+                  type="text" // ✅ number → text
+                  inputMode="numeric" // ✅ mobile numeric keypad
+                  pattern="[0-9]*" // ✅ digits only
+                  value={formData.monthlyIncome}
+                  placeholder="40000"
+                  className="pl-11"
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    // ✅ allow only digits (no minus, no dot, no e)
+                    if (/^\d*$/.test(value)) {
+                      handleChange(e);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    // ✅ hard block minus, e, dot
+                    if (["-", "e", ".", "+"].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+            </FormField>
+          </div>
+        </div>
+
+        {/* Section: अभिभावक / पिता का विवरण */}
+        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            अभिभावक / पिता का विवरण
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              label="व्यवसाय"
+              error={errors.fatherOccupation} // ✅ Changed
+              required
+            >
+              <div className="relative">
+                <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
+                <Select
+                  value={formData.fatherOccupation}
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, fatherOccupation: value });
+                    setErrors((prev) => ({
+                      ...prev,
+                      fatherOccupation: undefined,
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="pl-11">
+                    <SelectValue placeholder="चयन करें" />
+                  </SelectTrigger>
+                  <SelectContent side="bottom" align="start">
+                    <SelectItem value="नौकरी">नौकरी</SelectItem>
+                    <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
+                    <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
+                    <SelectItem value="कृषि">कृषि</SelectItem>
+                    <SelectItem value="छात्र">छात्र</SelectItem>
+                    <SelectItem value="गृहिणी">गृहिणी</SelectItem>
+                    <SelectItem value="अन्य">अन्य</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </FormField>
+
+            <FormField label="मासिक आय" error={errors.fatherIncome} required>
+              <div className="relative">
+                <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  name="fatherIncome"
+                  inputMode="numeric" // ✅ mobile numeric keypad
+                  pattern="[0-9]*" // ✅ digits only
+                  value={formData.fatherIncome}
+                  placeholder="40000"
+                  className="pl-11"
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    // ✅ allow only digits (no minus, no dot, no e)
+                    if (/^\d*$/.test(value)) {
+                      handleChange(e);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    // ✅ hard block minus, e, dot
+                    if (["-", "e", ".", "+"].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+            </FormField>
+          </div>
+        </div>
+
+        {/* Section: पता विवरण */}
+        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+          <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+            <Home className="w-5 h-5" />
+            पता विवरण
+          </h4>
+
+          {/* Full Address */}
+          <FormField label="पूर्ण पता" error={errors.fullAddress} required>
+            <div className="relative">
+              <Textarea
+                name="fullAddress"
+                value={formData.fullAddress}
+                rows={1}
+                placeholder="मकान नंबर 123, गली नंबर 5, सेक्टर 4, भोपाल"
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  // split by spaces & filter empty
+                  const words = value.trim().split(/\s+/).filter(Boolean);
+
+                  if (words.length <= 50) {
+                    handleChange(e);
+                  }
+                }}
+              />
+              <HindiSuggestionBox field="fullAddress" />
+            </div>
+
+            {/* optional helper text */}
+            <p className="text-xs text-muted-foreground mt-1">
+              अधिकतम 100 शब्द
+            </p>
+          </FormField>
+
+          {/* PIN CODE */}
+          <FormField label="पिन कोड">
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
-                name="district" // ✅ Make sure name is set
-                value={formData.district}
-                onChange={handleChange} // ✅ Use handleChange which clears errors
+                value={pincode}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                  setPincode(val);
+                  if (val.length === 6) {
+                    fetchAddressFromPincode(val);
+                  }
+                }}
+                placeholder="455001"
                 className="pl-11"
-                placeholder="भोपाल"
               />
-           <HindiSuggestionBox field="district" />
+              {isFetchingPin && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                  खोजा जा रहा है...
+                </span>
+              )}
             </div>
           </FormField>
 
-          <FormField label="तहसील" error={errors.tehsil} required>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                name="tehsil" // ✅ Make sure name is set
-                value={formData.tehsil}
-                onChange={handleChange} // ✅ Use handleChange which clears errors
-                className="pl-11"
-                placeholder="हुजूर"
-              />
-              <HindiSuggestionBox field="tehsil" />
-            </div>
-          </FormField>
+          {/* District + Tehsil */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField label="जिला" error={errors.district} required>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  name="district" // ✅ Make sure name is set
+                  value={formData.district}
+                  onChange={handleChange} // ✅ Use handleChange which clears errors
+                  className="pl-11"
+                  placeholder="भोपाल"
+                />
+                <HindiSuggestionBox field="district" />
+              </div>
+            </FormField>
+
+            <FormField label="तहसील" error={errors.tehsil} required>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  name="tehsil" // ✅ Make sure name is set
+                  value={formData.tehsil}
+                  onChange={handleChange} // ✅ Use handleChange which clears errors
+                  className="pl-11"
+                  placeholder="हुजूर"
+                />
+                <HindiSuggestionBox field="tehsil" />
+              </div>
+            </FormField>
+          </div>
         </div>
-      </div>
 
-      {/* Section: मोबाइल नंबर */}
+        {/* Section: मोबाइल नंबर */}
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Section: प्रत्याशी का मोबाइल नंबर */}
-        <div className="flex-1 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-          <FormField
-            label="प्रत्याशी का मोबाइल नंबर (वैकल्पिक)"
-            error={errors.candidateMobile}
-            required={false}
-            phone
-          >
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                value={formData.candidateMobile}
-                onChange={(e) => handleCandidateMobileChange(e.target.value)}
-                placeholder="9876543210"
-                className="pl-11"
-                maxLength={10}
-              />
-            </div>
-          </FormField>
-        </div>
-        <div className=" flex-1 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
-          {/* <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Section: प्रत्याशी का मोबाइल नंबर */}
+          <div className="flex-1 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+            <FormField
+              label="प्रत्याशी का मोबाइल नंबर (वैकल्पिक)"
+              error={errors.candidateMobile}
+              required={false}
+              phone
+            >
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  value={formData.candidateMobile}
+                  onChange={(e) => handleCandidateMobileChange(e.target.value)}
+                  placeholder="9876543210"
+                  className="pl-11"
+                  maxLength={10}
+                />
+              </div>
+            </FormField>
+          </div>
+          <div className=" flex-1 space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+            {/* <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
           <Phone className="w-5 h-5" />
           अभिभावक मोबाइल नंबर
         </h4> */}
-          <FormField
-            label="अभिभावक मोबाइल नंबर"
-            error={errors.guardianMobileNumbers}
-            phone
-            required
-          >
-            <div className="space-y-3">
-              {formData.guardianMobileNumbers.map((number, index) => (
-                <div key={index} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      value={number}
-                      onChange={(e) =>
-                        handleGuardianMobileChange(index, e.target.value)
-                      }
-                      placeholder="9876543210"
-                      className="pl-11"
-                      maxLength={10}
-                    />
+            <FormField
+              label="अभिभावक मोबाइल नंबर"
+              error={errors.guardianMobileNumbers}
+              phone
+              required
+            >
+              <div className="space-y-3">
+                {formData.guardianMobileNumbers.map((number, index) => (
+                  <div key={index} className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        value={number}
+                        onChange={(e) =>
+                          handleGuardianMobileChange(index, e.target.value)
+                        }
+                        placeholder="9876543210"
+                        className="pl-11"
+                        maxLength={10}
+                      />
+                    </div>
+                    {formData.guardianMobileNumbers.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => removeGuardianMobileNumber(index)}
+                        className="shrink-0 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
-                  {formData.guardianMobileNumbers.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeGuardianMobileNumber(index)}
-                      className="shrink-0 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              {formData.guardianMobileNumbers.length < 2 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addGuardianMobileNumber}
-                  className="w-full border-dashed border-maroon text-maroon hover:bg-maroon/10"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  मोबाइल नंबर जोड़ें
-                </Button>
-              )}
-            </div>
-          </FormField>
+                ))}
+                {formData.guardianMobileNumbers.length < 2 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addGuardianMobileNumber}
+                    className="w-full border-dashed border-maroon text-maroon hover:bg-maroon/10"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    मोबाइल नंबर जोड़ें
+                  </Button>
+                )}
+              </div>
+            </FormField>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="pt-4 hidden">
+          <Button
+            type="submit"
+            variant="saffron"
+            size="lg"
+            className="w-full text-lg"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                कृपया प्रतीक्षा करें...
+              </>
+            ) : (
+              <>
+                <Send className="w-5 h-5" />
+                पंजीकरण करें
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Footer note */}
+        <p className="text-center text-sm text-muted-foreground">
+          <span className="text-destructive">*</span> चिह्नित सभी जानकारी
+          अनिवार्य है
+        </p>
+      </form>
+      {/* DISABLED OVERLAY */}
+      <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center rounded-xl">
+        <div className="text-center absolute top-56">
+          <h2 className="text-3xl font-bold text-white">Coming Soon</h2>
+          <p className="text-white/80 mt-2">यह फॉर्म जल्द ही उपलब्ध होगा</p>
         </div>
       </div>
-
-      {/* Submit Button */}
-      <div className="pt-4">
-        <Button
-          type="submit"
-          variant="saffron"
-          size="lg"
-          className="w-full text-lg"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <>
-              <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-              कृपया प्रतीक्षा करें...
-            </>
-          ) : (
-            <>
-              <Send className="w-5 h-5" />
-              पंजीकरण करें
-            </>
-          )}
-        </Button>
-      </div>
-
-      {/* Footer note */}
-      <p className="text-center text-sm text-muted-foreground">
-        <span className="text-destructive">*</span> चिह्नित सभी जानकारी अनिवार्य
-        है
-      </p>
-    </form>
+    </div>
   );
 };
 
