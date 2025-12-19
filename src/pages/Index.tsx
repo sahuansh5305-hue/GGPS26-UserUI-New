@@ -4,17 +4,17 @@ import RegistrationForm from "@/components/RegistrationForm";
 
 const Index = () => {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-gradient-to-br from-primary/10 via-background to-gold/10 sparkle-bg">
       {/* Full screen background image */}
-      <div 
+      {/* <div 
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{
   backgroundImage: "url('/images/coupleimage.jpg')",
 }}
 
-      />
+      /> */}
       {/* Dark overlay for better readability */}
-      <div className="fixed inset-0 bg-black/50" />
+      {/* <div className="fixed inset-0 bg-black/50" /> */}
 
       <main className="relative z-10 container mx-auto px-4 py-8 md:py-12 max-w-4xl">
         {/* Event Header */}
@@ -31,19 +31,19 @@ const Index = () => {
           <RegistrationForm />
         </div>
         {/* Footer */}
-        <footer className="mt-10 text-center text-white text-xl animate-fade-in animation-delay-500">
+        <footer className="mt-10 text-center text-maroon text-xl animate-fade-in animation-delay-500">
           {/* Organizers */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Pramod Vyas */}
             <div className="text-center">
-              <p className="font-semibold text-white">प्रमोद व्यास</p>
+              <p className="font-semibold">प्रमोद व्यास</p>
               <p className="italic">( मुख्य संरक्षक अ.भा. युवक-युवती परिचय सम्मेलन)</p>
               <p className="mt-1">📞 9425494210</p>
             </div>
 
             {/* Suneel Sharma */}
             <div className="text-center">
-              <p className="font-semibold text-white">सुनील शर्मा</p>
+              <p className="font-semibold">सुनील शर्मा</p>
               <p className="italic">(संरक्षक)</p>
               <p className="mt-1">📞 8959300245</p>
             </div>
@@ -51,7 +51,7 @@ const Index = () => {
 
           {/* Kamlesh Sharma */}
           <div className="mt-6 text-center">
-            <p className="font-semibold text-white">कमलेश शर्मा</p>
+            <p className="font-semibold">कमलेश शर्मा</p>
             <p className="italic">(संयोजक)</p>
             <p className="mt-1">📞 9926929498</p>
           </div>
