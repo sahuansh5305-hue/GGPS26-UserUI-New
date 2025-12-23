@@ -94,12 +94,6 @@ const Index = () => {
     >
       dewasparichaysammelan26@gmail.com
     </a>
-
-    <span className="hidden sm:inline">|</span>
-
-    <span className="break-all">
-      +91-9753309166 (WhatsApp Only)
-    </span>
   </div>
 </footer>
 

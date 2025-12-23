@@ -455,67 +455,96 @@ const RegistrationForm = () => {
     return undefined;
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      toast({
-        title: "त्रुटि",
-        description: "कृपया सभी आवश्यक जानकारी सही ढंग से भरें",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log("पंजीकरण डेटा:", formData);
 
-    toast({
-      title: "पंजीकरण सफल!",
-      description: "आपका पंजीकरण सफलतापूर्वक जमा हो गया है। धन्यवाद!",
-    });
+    try {
+      const payload = new FormData();
 
-    // Reset form
-    setFormData({
-      candidateName: "",
-      fatherName: "",
-      motherName: "",
-      birthDate: "",
-      birthTime: "",
-      birthPlace: "",
-      otherDetails: "",
-      parichay: "",
-      nakshatra: "",
-      charan: "",
-      rashi: "",
-      nadi: "",
-      manglik: "",
-      patrikaRequired: "",
-      height: "",
-      complexion: "",
-      weight: "",
-      gotra: "",
-      nanihal: "",
-      education: "",
-      occupation: "",
-      monthlyIncome: "",
-      fatherOccupation: "",
-      fatherIncome: "",
-      fullAddress: "",
-      tehsil: "",
-      district: "",
-      candidateMobile: "",
-      guardianMobileNumbers: [""],
-      photo: null,
-    });
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "guardianMobileNumbers") {
+          payload.append(key, JSON.stringify(value));
+        } else if (key === "photo" && value instanceof File) {
+          payload.append("photo", value);
+        } else if (typeof value === "string") {
+          payload.append(key, value);
+        }
+      });
 
-    // ✅ Add these two lines to reset height fields
-    setHeightFeet("");
-    setHeightInch("");
+      payload.append("height_feet", heightFeet);
+      payload.append("height_inch", heightInch);
 
-    setErrors({});
-    setIsSubmitting(false);
+      const res = await fetch("http://localhost:3000/api/matrimonial", {
+        method: "POST",
+        body: payload,
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Server response invalid");
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Submission failed");
+      }
+
+      // ✅ SUCCESS → RESET FORM
+      setFormData({
+        candidateName: "",
+        fatherName: "",
+        motherName: "",
+        birthDate: "",
+        birthTime: "",
+        birthPlace: "",
+        otherDetails: "",
+        parichay: "",
+        nakshatra: "",
+        charan: "",
+        rashi: "",
+        nadi: "",
+        manglik: "",
+        patrikaRequired: "",
+        height: "",
+        complexion: "",
+        weight: "",
+        gotra: "",
+        nanihal: "",
+        education: "",
+        occupation: "",
+        monthlyIncome: "",
+        fatherOccupation: "",
+        fatherIncome: "",
+        fullAddress: "",
+        tehsil: "",
+        district: "",
+        candidateMobile: "",
+        guardianMobileNumbers: [""],
+        photo: null,
+      });
+
+      setHeightFeet("");
+      setHeightInch("");
+      setErrors({});
+
+      toast({
+        title: "सफल",
+        description: "डेटा सफलतापूर्वक सेव हो गया",
+      });
+    } catch (err: any) {
+      toast({
+        title: "त्रुटि",
+        description: err.message || "डेटा सेव नहीं हुआ",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const fetchAddressFromPincode = async (pin: string) => {
@@ -674,7 +703,7 @@ const RegistrationForm = () => {
     <div className="relative">
       <form
         onSubmit={handleSubmit}
-        className="space-y-8 animate-fade-in animation-delay-200 animate-fade-in animation-delay-200 pointer-events-none"
+        className="space-y-8 animate-fade-in animation-delay-200 animate-fade-in animation-delay-200"
       >
         {/* Form title */}
         <div className="text-center mb-8">
@@ -1508,7 +1537,7 @@ const RegistrationForm = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="pt-4 hidden">
+        <div className="pt-4">
           <Button
             type="submit"
             variant="saffron"
@@ -1537,12 +1566,12 @@ const RegistrationForm = () => {
         </p>
       </form>
       {/* DISABLED OVERLAY */}
-      <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center rounded-xl">
+      {/* <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center rounded-xl">
         <div className="text-center absolute top-56">
           <h2 className="text-3xl font-bold text-white">Coming Soon</h2>
           <p className="text-white/80 mt-2">यह फॉर्म जल्द ही उपलब्ध होगा</p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
