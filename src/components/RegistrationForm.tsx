@@ -478,7 +478,8 @@ const RegistrationForm = () => {
       payload.append("height_feet", heightFeet);
       payload.append("height_inch", heightInch);
 
-      const res = await fetch("http://localhost:3000/api/matrimonial", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/matrimonial`, { 
+      // const res = await fetch(`http://localhost:3000/api/matrimonial`, { 
         method: "POST",
         body: payload,
       });
