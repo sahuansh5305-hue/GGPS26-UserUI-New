@@ -185,6 +185,9 @@ const RegistrationForm = () => {
   const [hindiSuggestions, setHindiSuggestions] = useState<string[]>([]);
   const [activeField, setActiveField] = useState<string | null>(null);
 
+  const [isOtherOccupation, setIsOtherOccupation] = useState(false);
+  const [isOtherFatherOccupation, setIsOtherFatherOccupation] = useState(false);
+
   // Check if text contains English characters
   const containsEnglish = (text: string): boolean => {
     return /[a-zA-Z]/.test(text);
@@ -455,7 +458,7 @@ const RegistrationForm = () => {
     return undefined;
   };
 
-   const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -478,11 +481,14 @@ const RegistrationForm = () => {
       payload.append("height_feet", heightFeet);
       payload.append("height_inch", heightInch);
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/matrimonial`, { 
-      // const res = await fetch(`http://localhost:3000/api/matrimonial`, { 
-        method: "POST",
-        body: payload,
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/matrimonial`,
+        {
+          // const res = await fetch(`http://localhost:3000/api/matrimonial`, {
+          method: "POST",
+          body: payload,
+        }
+      );
 
       let data;
       try {
@@ -1242,28 +1248,76 @@ const RegistrationForm = () => {
               <div className="relative">
                 <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
 
-                <Select
-                  value={formData.occupation}
-                  onValueChange={(value) => {
-                    setFormData({ ...formData, occupation: value });
-                    setErrors((prev) => ({ ...prev, occupation: undefined }));
-                  }}
-                >
-                  <SelectTrigger className="pl-11">
-                    <SelectValue placeholder="चयन करें" />
-                  </SelectTrigger>
+                {isOtherOccupation ? (
+                  /* ✏️ SAME FIELD – USER TYPES HERE */
+                  <div className="relative">
+                    <Input
+                      name="occupation"
+                      value={formData.occupation}
+                      onChange={handleChange}
+                      placeholder="अपना व्यवसाय लिखें"
+                      className="pl-11 text-black"
+                      autoFocus
+                    />
+                    <HindiSuggestionBox field="occupation" />
 
-                  {/* 👇 force dropdown to open BELOW */}
-                  <SelectContent side="bottom" align="start">
-                    <SelectItem value="नौकरी">नौकरी</SelectItem>
-                    <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
-                    <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
-                    <SelectItem value="कृषि">कृषि</SelectItem>
-                    <SelectItem value="छात्र">छात्र</SelectItem>
-                    <SelectItem value="गृहिणी">गृहिणी</SelectItem>
-                    <SelectItem value="अन्य">अन्य</SelectItem>
-                  </SelectContent>
-                </Select>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsOtherOccupation(false);
+                        setFormData({ ...formData, occupation: "" });
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-maroon hover:underline"
+                    >
+                      बदलें
+                    </button>
+                  </div>
+                ) : (
+                  /* 🔽 DROPDOWN MODE */
+                  <Select
+                    value={formData.occupation}
+                    onValueChange={(value) => {
+                      if (value === "अन्य") {
+                        // 🔥 CORE REQUIREMENT
+                        setIsOtherOccupation(true);
+                        setFormData({ ...formData, occupation: "" });
+                      } else {
+                        setFormData({ ...formData, occupation: value });
+                      }
+                      setErrors((prev) => ({ ...prev, occupation: undefined }));
+                    }}
+                  >
+                    <SelectTrigger className="pl-11">
+                      <SelectValue placeholder="चयन करें" />
+                    </SelectTrigger>
+
+                    <SelectContent side="bottom" align="start">
+                      <SelectItem value="नौकरी">नौकरी (प्राइवेट)</SelectItem>
+                      <SelectItem value="सरकारी नौकरी">सरकारी नौकरी</SelectItem>
+                      <SelectItem value="सेवानिवृत्त">सेवानिवृत्त</SelectItem>
+                      <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
+                      <SelectItem value="छात्र">अध्ययनरत</SelectItem>
+                      <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
+                      <SelectItem value="कृषि">कृषि / किसान</SelectItem>
+                      <SelectItem value="पशुपालन">पशुपालन</SelectItem>
+                      <SelectItem value="दुकान">दुकान / व्यापार</SelectItem>
+                      <SelectItem value="उद्योग">उद्योग</SelectItem>
+                      <SelectItem value="ठेका कार्य">ठेका कार्य</SelectItem>
+                      <SelectItem value="शिक्षक">शिक्षक</SelectItem>
+                      <SelectItem value="प्रोफेसर">प्रोफेसर</SelectItem>
+                      <SelectItem value="इंजीनियर">इंजीनियर</SelectItem>
+                      <SelectItem value="डॉक्टर">डॉक्टर</SelectItem>
+                      <SelectItem value="पंडिताई">पंडिताई</SelectItem>
+                      <SelectItem value="नर्स">नर्स</SelectItem>
+                      <SelectItem value="आईटी प्रोफेशनल">
+                        आईटी प्रोफेशनल
+                      </SelectItem>
+                      <SelectItem value="फ्रीलांसर">फ्रीलांसर</SelectItem>
+                      <SelectItem value="कंसल्टेंट">कंसल्टेंट</SelectItem>
+                      <SelectItem value="अन्य">अन्य</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </FormField>
             <FormField label="मासिक आय" error={errors.monthlyIncome} required>
@@ -1305,36 +1359,84 @@ const RegistrationForm = () => {
             अभिभावक / पिता का विवरण
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              label="व्यवसाय"
-              error={errors.fatherOccupation} // ✅ Changed
-              required
-            >
+            <FormField label="व्यवसाय" error={errors.fatherOccupation} required>
               <div className="relative">
                 <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
-                <Select
-                  value={formData.fatherOccupation}
-                  onValueChange={(value) => {
-                    setFormData({ ...formData, fatherOccupation: value });
-                    setErrors((prev) => ({
-                      ...prev,
-                      fatherOccupation: undefined,
-                    }));
-                  }}
-                >
-                  <SelectTrigger className="pl-11">
-                    <SelectValue placeholder="चयन करें" />
-                  </SelectTrigger>
-                  <SelectContent side="bottom" align="start">
-                    <SelectItem value="नौकरी">नौकरी</SelectItem>
-                    <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
-                    <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
-                    <SelectItem value="कृषि">कृषि</SelectItem>
-                    <SelectItem value="छात्र">छात्र</SelectItem>
-                    <SelectItem value="गृहिणी">गृहिणी</SelectItem>
-                    <SelectItem value="अन्य">अन्य</SelectItem>
-                  </SelectContent>
-                </Select>
+
+                {isOtherFatherOccupation ? (
+                  /* ✏️ SAME FIELD – INPUT MODE */
+                  <div className="relative">
+                    <Input
+                      name="fatherOccupation"
+                      value={formData.fatherOccupation}
+                      onChange={handleChange}
+                      placeholder="पिता का व्यवसाय लिखें"
+                      className="pl-11 text-black"
+                      autoFocus
+                    />
+
+                    {/* ✅ Hindi Suggestions */}
+                    <HindiSuggestionBox field="fatherOccupation" />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsOtherFatherOccupation(false);
+                        setFormData({ ...formData, fatherOccupation: "" });
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-maroon hover:underline"
+                    >
+                      बदलें
+                    </button>
+                  </div>
+                ) : (
+                  /* 🔽 SELECT MODE */
+                  <Select
+                    value={formData.fatherOccupation}
+                    onValueChange={(value) => {
+                      if (value === "अन्य") {
+                        // 🔥 REQUIRED BEHAVIOR
+                        setIsOtherFatherOccupation(true);
+                        setFormData({ ...formData, fatherOccupation: "" });
+                      } else {
+                        setFormData({ ...formData, fatherOccupation: value });
+                      }
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        fatherOccupation: undefined,
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className="pl-11">
+                      <SelectValue placeholder="चयन करें" />
+                    </SelectTrigger>
+
+                    <SelectContent side="bottom" align="start">
+                      <SelectItem value="नौकरी">नौकरी (प्राइवेट)</SelectItem>
+                      <SelectItem value="सरकारी नौकरी">सरकारी नौकरी</SelectItem>
+                      <SelectItem value="सेवानिवृत्त">सेवानिवृत्त</SelectItem>
+                      <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
+                      <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
+                      <SelectItem value="कृषि">कृषि / किसान</SelectItem>
+                      <SelectItem value="पशुपालन">पशुपालन</SelectItem>
+                      <SelectItem value="दुकान">दुकान / व्यापार</SelectItem>
+                      <SelectItem value="उद्योग">उद्योग</SelectItem>
+                      <SelectItem value="ठेका कार्य">ठेका कार्य</SelectItem>
+                      <SelectItem value="शिक्षक">शिक्षक</SelectItem>
+                      <SelectItem value="प्रोफेसर">प्रोफेसर</SelectItem>
+                      <SelectItem value="इंजीनियर">इंजीनियर</SelectItem>
+                      <SelectItem value="डॉक्टर">डॉक्टर</SelectItem>
+                      <SelectItem value="पंडिताई">पंडिताई</SelectItem>
+                      <SelectItem value="नर्स">नर्स</SelectItem>
+                      <SelectItem value="आईटी प्रोफेशनल">
+                        आईटी प्रोफेशनल
+                      </SelectItem>
+                      <SelectItem value="फ्रीलांसर">फ्रीलांसर</SelectItem>
+                      <SelectItem value="अन्य">अन्य</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </FormField>
 
@@ -1382,7 +1484,7 @@ const RegistrationForm = () => {
                 name="fullAddress"
                 value={formData.fullAddress}
                 rows={1}
-                placeholder="मकान नंबर 123, गली नंबर 5, सेक्टर 4, भोपाल"
+                placeholder="मकान नंबर 123, गली नंबर 5, सेक्टर 4"
                 onChange={(e) => {
                   const value = e.target.value;
 

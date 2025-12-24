@@ -4,14 +4,14 @@ import gotamMuniImage from "@/assets/gotam-muni.jpg";
 
 const EventHeader = () => {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-maroon to-maroon-dark p-6 md:p-8 shadow-card animate-fade-in">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-maroon to-maroon-dark pt-6 pr-6 pb-6 pl-10 shadow-card animate-fade-in">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-32 h-32 bg-gold/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-40 h-40 bg-saffron/10 rounded-full translate-x-1/3 translate-y-1/3" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-pattern opacity-5" />
 
       {/* Top images - vertical column */}
-      <div className="absolute sm:top-20 left-6 flex flex-col items-center gap-3 sm:gap-1">
+      <div className="absolute left-6 flex flex-col items-center gap-3 sm:gap-1">
         {/* Image 1 */}
         <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-gold/50 shadow-lg">
           <img
@@ -31,7 +31,7 @@ const EventHeader = () => {
         </div>
       </div>
 
-      <div className="absolute sm:top-20 right-6 w-20 h-32 md:w-24 md:h-32 rounded-lg overflow-hidden -mt-3">
+      <div className="absolute  right-6 w-20 h-40 md:w-24 md:max-h-36 rounded-lg overflow-hidden -mt-3">
         <img
           src="/images/gautamuni.png"
           alt="गौतम मुनि"
@@ -39,7 +39,7 @@ const EventHeader = () => {
         />
       </div>
 
-      <div className="relative mt-28 sm:-top-16 z-10 text-center space-y-4">
+      <div className="relative top-10 sm:top-2 z-10 right-3 text-center space-y-4">
         {/* Main title */}
         <div className="space-y-2">
           <p className="text-gold text-base md:text-lg font-medium animate-fade-in animation-delay-100">
