@@ -15,7 +15,7 @@ const EventHeader = () => {
         {/* Image 1 */}
         <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-gold/50 shadow-lg">
           <img
-            src="/images/badimataji.jpg"
+            src="/images/badimataji.png"
             alt="माता"
             className="w-full h-full object-cover"
           />
@@ -24,7 +24,7 @@ const EventHeader = () => {
         {/* Image 2 */}
         <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-gold/50 shadow-lg">
           <img
-            src="/images/chotimataji.jpeg"
+            src="/images/chotimataji.png"
             alt="माता"
             className="w-full h-full object-cover"
           />
@@ -111,3 +111,4 @@ const EventHeader = () => {
 };
 
 export default EventHeader;
+
