@@ -374,7 +374,6 @@ const RegistrationForm = () => {
     const requiredFields = [
       "candidateName",
       "fatherName",
-      "motherName",
       "birthDate",
       "birthTime",
       "birthPlace",
@@ -391,8 +390,6 @@ const RegistrationForm = () => {
       "occupation",
       "monthlyIncome",
       "fullAddress",
-      "tehsil",
-      "district",
       "guardianMobileNumbers",
     ];
 
@@ -920,7 +917,7 @@ const fetchAddressFromPincode = async (pin: string) => {
               </div>
             </FormField>
 
-            <FormField label="माता का नाम" error={errors.motherName} required>
+            <FormField label="माता का नाम" error={errors.motherName}>
               <div className="relative">
                 <Input
                   name="motherName"
@@ -1621,7 +1618,7 @@ const fetchAddressFromPincode = async (pin: string) => {
 
           {/* District + Tehsil */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField label="जिला" error={errors.district} required>
+            <FormField label="जिला" error={errors.district}>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -1635,7 +1632,7 @@ const fetchAddressFromPincode = async (pin: string) => {
               </div>
             </FormField>
 
-            <FormField label="तहसील" error={errors.tehsil} required>
+            <FormField label="तहसील" error={errors.tehsil}>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
