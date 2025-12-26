@@ -554,37 +554,37 @@ const RegistrationForm = () => {
     }
   };
 
-  const fetchAddressFromPincode = async (pin: string) => {
-    if (pin.length !== 6) return;
+  // const fetchAddressFromPincode = async (pin: string) => {
+  //   if (pin.length !== 6) return;
 
-    try {
-      setIsFetchingPin(true);
+  //   try {
+  //     setIsFetchingPin(true);
 
-      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
-      const data = await res.json();
+  //     const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+  //     const data = await res.json();
 
-      if (data[0]?.Status === "Success") {
-        const postOffice = data[0].PostOffice[0];
+  //     if (data[0]?.Status === "Success") {
+  //       const postOffice = data[0].PostOffice[0];
 
-        setFormData((prev) => ({
-          ...prev,
-          district: postOffice.District || "",
-          tehsil: postOffice.Block || "",
-        }));
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         district: postOffice.District || "",
+  //         tehsil: postOffice.Block || "",
+  //       }));
 
-        // ✅ Clear errors when auto-filled
-        setErrors((prev) => ({
-          ...prev,
-          district: undefined,
-          tehsil: undefined,
-        }));
-      }
-    } catch (err) {
-      console.error("Pincode fetch failed", err);
-    } finally {
-      setIsFetchingPin(false);
-    }
-  };
+  //       // ✅ Clear errors when auto-filled
+  //       setErrors((prev) => ({
+  //         ...prev,
+  //         district: undefined,
+  //         tehsil: undefined,
+  //       }));
+  //     }
+  //   } catch (err) {
+  //     console.error("Pincode fetch failed", err);
+  //   } finally {
+  //     setIsFetchingPin(false);
+  //   }
+  // };
 
   useEffect(() => {
     console.log("Photo state changed:", formData.photo);
@@ -664,26 +664,122 @@ const RegistrationForm = () => {
   };
 
   // 🔤 Google Hindi Transliteration Helper
-  const fetchHindiSuggestions = async (text: string): Promise<string[]> => {
-    if (!text.trim()) return [];
-
-    try {
+  // 🔤 Google Hindi Transliteration Helper
+  // 🔤 Google Hindi Transliteration Helper
+ // 🔤 Google Hindi Transliteration Helper (for suggestions as user types)
+const fetchHindiSuggestions = async (text: string): Promise<string[]> => {
+  if (!text.trim()) return [];
+  
+  try {
+    // Split by comma to handle multiple parts
+    const parts = text.split(',').map(part => part.trim()).filter(Boolean);
+    
+    if (parts.length === 0) return [];
+    
+    // If only one part (no comma), use simple transliteration
+    if (parts.length === 1) {
       const res = await fetch(
-        `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(
-          text
-        )}`
+        `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(text)}`
       );
       const data = await res.json();
-
+      
       if (data[0] === "SUCCESS") {
         return data[1][0][1];
       }
-    } catch (err) {
-      console.error("Hindi transliteration error", err);
+    } else {
+      // Multiple parts - transliterate each part separately
+      const transliteratedParts: string[][] = [];
+      
+      for (const part of parts) {
+        const res = await fetch(
+          `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(part)}`
+        );
+        const data = await res.json();
+        
+        if (data[0] === "SUCCESS") {
+          transliteratedParts.push(data[1][0][1]);
+        } else {
+          transliteratedParts.push([part]); // Keep original if transliteration fails
+        }
+      }
+      
+      // Combine all parts with commas
+      const combined: string[] = [];
+      const maxSuggestions = Math.max(...transliteratedParts.map(p => p.length));
+      
+      for (let i = 0; i < Math.min(maxSuggestions, 5); i++) {
+        const suggestion = transliteratedParts
+          .map(partSuggestions => partSuggestions[i] || partSuggestions[0])
+          .join(', ');
+        combined.push(suggestion);
+      }
+      
+      return combined;
     }
+  } catch (err) {
+    console.error("Hindi transliteration error", err);
+  }
+  
+  return [];
+};
 
-    return [];
-  };
+// Helper function to transliterate English text to Hindi (for pincode auto-fill)
+const transliterateToHindi = async (text: string): Promise<string> => {
+  if (!text.trim()) return "";
+
+  try {
+    const res = await fetch(
+      `https://inputtools.google.com/request?itc=hi-t-i0-und&num=1&text=${encodeURIComponent(text)}`
+    );
+    const data = await res.json();
+
+    if (data[0] === "SUCCESS" && data[1]?.[0]?.[1]?.[0]) {
+      return data[1][0][1][0]; // Return first suggestion
+    }
+  } catch (err) {
+    console.error("Transliteration error", err);
+  }
+
+  return text; // Return original if transliteration fails
+};
+
+const fetchAddressFromPincode = async (pin: string) => {
+  if (pin.length !== 6) return;
+
+  try {
+    setIsFetchingPin(true);
+
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+    const data = await res.json();
+
+    if (data[0]?.Status === "Success") {
+      const postOffice = data[0].PostOffice[0];
+      const districtEnglish = postOffice.District || "";
+      const tehsilEnglish = postOffice.Block || "";
+
+      // Transliterate to Hindi
+      const districtHindi = await transliterateToHindi(districtEnglish);
+      const tehsilHindi = await transliterateToHindi(tehsilEnglish);
+
+      setFormData((prev) => ({
+        ...prev,
+        district: districtHindi || districtEnglish,
+        tehsil: tehsilHindi || tehsilEnglish,
+      }));
+
+      // Clear errors when auto-filled
+      setErrors((prev) => ({
+        ...prev,
+        district: undefined,
+        tehsil: undefined,
+      }));
+    }
+  } catch (err) {
+    console.error("Pincode fetch failed", err);
+  } finally {
+    setIsFetchingPin(false);
+  }
+};
 
   const HindiSuggestionBox = ({ field }: { field: string }) => {
     if (activeField !== field || hindiSuggestions.length === 0) return null;
@@ -947,7 +1043,7 @@ const RegistrationForm = () => {
             कुंडली विवरण
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FormField label="नक्षत्र" error={errors.nakshatra} required>
+            <FormField label="नक्षत्र" error={errors.nakshatra}>
               <Select
                 value={formData.nakshatra}
                 onValueChange={(value) =>
@@ -967,7 +1063,7 @@ const RegistrationForm = () => {
               </Select>
             </FormField>
 
-            <FormField label="चरण" error={errors.charan} required>
+            <FormField label="चरण" error={errors.charan}>
               <Select
                 value={formData.charan}
                 onValueChange={(value) => handleSelectChange("charan", value)}
@@ -1003,7 +1099,7 @@ const RegistrationForm = () => {
               </Select>
             </FormField>
 
-            <FormField label="नाड़ी" error={errors.nadi} required>
+            <FormField label="नाड़ी" error={errors.nadi}>
               <Select
                 value={formData.nadi}
                 onValueChange={(value) => handleSelectChange("nadi", value)}
@@ -1294,7 +1390,6 @@ const RegistrationForm = () => {
                     <SelectContent side="bottom" align="start">
                       <SelectItem value="नौकरी">नौकरी (प्राइवेट)</SelectItem>
                       <SelectItem value="सरकारी नौकरी">सरकारी नौकरी</SelectItem>
-                      <SelectItem value="सेवानिवृत्त">सेवानिवृत्त</SelectItem>
                       <SelectItem value="व्यवसाय">व्यवसाय</SelectItem>
                       <SelectItem value="छात्र">अध्ययनरत</SelectItem>
                       <SelectItem value="स्वरोज़गार">स्वरोज़गार</SelectItem>
@@ -1359,7 +1454,7 @@ const RegistrationForm = () => {
             अभिभावक / पिता का विवरण
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField label="व्यवसाय" error={errors.fatherOccupation} required>
+            <FormField label="व्यवसाय" error={errors.fatherOccupation}>
               <div className="relative">
                 <Briefcase className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground z-10" />
 
