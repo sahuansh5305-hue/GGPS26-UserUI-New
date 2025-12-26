@@ -379,10 +379,7 @@ const RegistrationForm = () => {
       "birthTime",
       "birthPlace",
       "parichay",
-      "nakshatra",
-      "charan",
       "rashi",
-      "nadi",
       "manglik",
       "patrikaRequired",
       "height",
@@ -393,8 +390,6 @@ const RegistrationForm = () => {
       "education",
       "occupation",
       "monthlyIncome",
-      "fatherOccupation",
-      "fatherIncome",
       "fullAddress",
       "tehsil",
       "district",
@@ -1415,7 +1410,7 @@ const fetchAddressFromPincode = async (pin: string) => {
                 )}
               </div>
             </FormField>
-            <FormField label="मासिक आय" error={errors.monthlyIncome} required>
+            <FormField label="मासिक आय" error={errors.monthlyIncome}>
               <div className="relative">
                 <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
 
@@ -1535,7 +1530,7 @@ const fetchAddressFromPincode = async (pin: string) => {
               </div>
             </FormField>
 
-            <FormField label="मासिक आय" error={errors.fatherIncome} required>
+            <FormField label="मासिक आय" error={errors.fatherIncome}>
               <div className="relative">
                 <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -1634,7 +1629,7 @@ const fetchAddressFromPincode = async (pin: string) => {
                   value={formData.district}
                   onChange={handleChange} // ✅ Use handleChange which clears errors
                   className="pl-11"
-                  placeholder="भोपाल"
+                  placeholder="देवास"
                 />
                 <HindiSuggestionBox field="district" />
               </div>
@@ -1648,7 +1643,7 @@ const fetchAddressFromPincode = async (pin: string) => {
                   value={formData.tehsil}
                   onChange={handleChange} // ✅ Use handleChange which clears errors
                   className="pl-11"
-                  placeholder="हुजूर"
+                  placeholder="देवास"
                 />
                 <HindiSuggestionBox field="tehsil" />
               </div>
