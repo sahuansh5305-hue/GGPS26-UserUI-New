@@ -1,5 +1,5 @@
 import Cropper from "react-easy-crop";
-import { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import { useState, useEffect, FormEvent, useRef, ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -187,6 +187,10 @@ const RegistrationForm = () => {
 
   const [isOtherOccupation, setIsOtherOccupation] = useState(false);
   const [isOtherFatherOccupation, setIsOtherFatherOccupation] = useState(false);
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check if text contains English characters
   const containsEnglish = (text: string): boolean => {
@@ -473,14 +477,12 @@ const RegistrationForm = () => {
       payload.append("height_feet", heightFeet);
       payload.append("height_inch", heightInch);
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/matrimonial`,
-        {
-          // const res = await fetch(`http://localhost:3000/api/matrimonial`, {
-          method: "POST",
-          body: payload,
-        }
-      );
+      // const res = await fetch(
+      //   `${import.meta.env.VITE_API_URL}/api/matrimonial`,
+      const res = await fetch(`http://localhost:3000/api/matrimonial`, {
+        method: "POST",
+        body: payload,
+      });
 
       let data;
       try {
@@ -531,10 +533,27 @@ const RegistrationForm = () => {
       setHeightInch("");
       setErrors({});
 
-      toast({
-        title: "सफल",
-        description: "डेटा सफलतापूर्वक सेव हो गया",
-      });
+      // ✅ ADD THESE LINES - Reset all image-related states
+      setImageSrc(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCroppedAreaPixels(null);
+      setShowCropModal(false);
+
+      // ✅ RESET FILE INPUT
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 5000);
+
+      // toast({
+      //   title: "सफल",
+      //   description: "आपकी प्रविष्टि सफलता पूर्वक प्राप्त हो गई है धन्यवाद!",
+      // });
     } catch (err: any) {
       toast({
         title: "त्रुटि",
@@ -658,120 +677,131 @@ const RegistrationForm = () => {
   // 🔤 Google Hindi Transliteration Helper
   // 🔤 Google Hindi Transliteration Helper
   // 🔤 Google Hindi Transliteration Helper
- // 🔤 Google Hindi Transliteration Helper (for suggestions as user types)
-const fetchHindiSuggestions = async (text: string): Promise<string[]> => {
-  if (!text.trim()) return [];
-  
-  try {
-    // Split by comma to handle multiple parts
-    const parts = text.split(',').map(part => part.trim()).filter(Boolean);
-    
-    if (parts.length === 0) return [];
-    
-    // If only one part (no comma), use simple transliteration
-    if (parts.length === 1) {
-      const res = await fetch(
-        `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(text)}`
-      );
-      const data = await res.json();
-      
-      if (data[0] === "SUCCESS") {
-        return data[1][0][1];
-      }
-    } else {
-      // Multiple parts - transliterate each part separately
-      const transliteratedParts: string[][] = [];
-      
-      for (const part of parts) {
+  // 🔤 Google Hindi Transliteration Helper (for suggestions as user types)
+  const fetchHindiSuggestions = async (text: string): Promise<string[]> => {
+    if (!text.trim()) return [];
+
+    try {
+      // Split by comma to handle multiple parts
+      const parts = text
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+      if (parts.length === 0) return [];
+
+      // If only one part (no comma), use simple transliteration
+      if (parts.length === 1) {
         const res = await fetch(
-          `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(part)}`
+          `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(
+            text
+          )}`
         );
         const data = await res.json();
-        
+
         if (data[0] === "SUCCESS") {
-          transliteratedParts.push(data[1][0][1]);
-        } else {
-          transliteratedParts.push([part]); // Keep original if transliteration fails
+          return data[1][0][1];
         }
+      } else {
+        // Multiple parts - transliterate each part separately
+        const transliteratedParts: string[][] = [];
+
+        for (const part of parts) {
+          const res = await fetch(
+            `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(
+              part
+            )}`
+          );
+          const data = await res.json();
+
+          if (data[0] === "SUCCESS") {
+            transliteratedParts.push(data[1][0][1]);
+          } else {
+            transliteratedParts.push([part]); // Keep original if transliteration fails
+          }
+        }
+
+        // Combine all parts with commas
+        const combined: string[] = [];
+        const maxSuggestions = Math.max(
+          ...transliteratedParts.map((p) => p.length)
+        );
+
+        for (let i = 0; i < Math.min(maxSuggestions, 5); i++) {
+          const suggestion = transliteratedParts
+            .map((partSuggestions) => partSuggestions[i] || partSuggestions[0])
+            .join(", ");
+          combined.push(suggestion);
+        }
+
+        return combined;
       }
-      
-      // Combine all parts with commas
-      const combined: string[] = [];
-      const maxSuggestions = Math.max(...transliteratedParts.map(p => p.length));
-      
-      for (let i = 0; i < Math.min(maxSuggestions, 5); i++) {
-        const suggestion = transliteratedParts
-          .map(partSuggestions => partSuggestions[i] || partSuggestions[0])
-          .join(', ');
-        combined.push(suggestion);
+    } catch (err) {
+      console.error("Hindi transliteration error", err);
+    }
+
+    return [];
+  };
+
+  // Helper function to transliterate English text to Hindi (for pincode auto-fill)
+  const transliterateToHindi = async (text: string): Promise<string> => {
+    if (!text.trim()) return "";
+
+    try {
+      const res = await fetch(
+        `https://inputtools.google.com/request?itc=hi-t-i0-und&num=1&text=${encodeURIComponent(
+          text
+        )}`
+      );
+      const data = await res.json();
+
+      if (data[0] === "SUCCESS" && data[1]?.[0]?.[1]?.[0]) {
+        return data[1][0][1][0]; // Return first suggestion
       }
-      
-      return combined;
+    } catch (err) {
+      console.error("Transliteration error", err);
     }
-  } catch (err) {
-    console.error("Hindi transliteration error", err);
-  }
-  
-  return [];
-};
 
-// Helper function to transliterate English text to Hindi (for pincode auto-fill)
-const transliterateToHindi = async (text: string): Promise<string> => {
-  if (!text.trim()) return "";
+    return text; // Return original if transliteration fails
+  };
 
-  try {
-    const res = await fetch(
-      `https://inputtools.google.com/request?itc=hi-t-i0-und&num=1&text=${encodeURIComponent(text)}`
-    );
-    const data = await res.json();
+  const fetchAddressFromPincode = async (pin: string) => {
+    if (pin.length !== 6) return;
 
-    if (data[0] === "SUCCESS" && data[1]?.[0]?.[1]?.[0]) {
-      return data[1][0][1][0]; // Return first suggestion
+    try {
+      setIsFetchingPin(true);
+
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+      const data = await res.json();
+
+      if (data[0]?.Status === "Success") {
+        const postOffice = data[0].PostOffice[0];
+        const districtEnglish = postOffice.District || "";
+        const tehsilEnglish = postOffice.Block || "";
+
+        // Transliterate to Hindi
+        const districtHindi = await transliterateToHindi(districtEnglish);
+        const tehsilHindi = await transliterateToHindi(tehsilEnglish);
+
+        setFormData((prev) => ({
+          ...prev,
+          district: districtHindi || districtEnglish,
+          tehsil: tehsilHindi || tehsilEnglish,
+        }));
+
+        // Clear errors when auto-filled
+        setErrors((prev) => ({
+          ...prev,
+          district: undefined,
+          tehsil: undefined,
+        }));
+      }
+    } catch (err) {
+      console.error("Pincode fetch failed", err);
+    } finally {
+      setIsFetchingPin(false);
     }
-  } catch (err) {
-    console.error("Transliteration error", err);
-  }
-
-  return text; // Return original if transliteration fails
-};
-
-const fetchAddressFromPincode = async (pin: string) => {
-  if (pin.length !== 6) return;
-
-  try {
-    setIsFetchingPin(true);
-
-    const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
-    const data = await res.json();
-
-    if (data[0]?.Status === "Success") {
-      const postOffice = data[0].PostOffice[0];
-      const districtEnglish = postOffice.District || "";
-      const tehsilEnglish = postOffice.Block || "";
-
-      // Transliterate to Hindi
-      const districtHindi = await transliterateToHindi(districtEnglish);
-      const tehsilHindi = await transliterateToHindi(tehsilEnglish);
-
-      setFormData((prev) => ({
-        ...prev,
-        district: districtHindi || districtEnglish,
-        tehsil: tehsilHindi || tehsilEnglish,
-      }));
-
-      // Clear errors when auto-filled
-      setErrors((prev) => ({
-        ...prev,
-        district: undefined,
-        tehsil: undefined,
-      }));
-    }
-  } catch (err) {
-    console.error("Pincode fetch failed", err);
-  } finally {
-    setIsFetchingPin(false);
-  }
-};
+  };
 
   const HindiSuggestionBox = ({ field }: { field: string }) => {
     if (activeField !== field || hindiSuggestions.length === 0) return null;
@@ -853,10 +883,11 @@ const fetchAddressFromPincode = async (pin: string) => {
             >
               <label
                 className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48
-                     flex items-center justify-center rounded-xl
-                     border-2 border-dashed border-maroon cursor-pointer"
+         flex items-center justify-center rounded-xl
+         border-2 border-dashed border-maroon cursor-pointer"
               >
                 <Input
+                  ref={fileInputRef} // ✅ ADD THIS REF
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
@@ -930,6 +961,49 @@ const fetchAddressFromPincode = async (pin: string) => {
             </FormField>
           </div>
         </div>
+
+        {/* Success Modal - Add this before the last closing </div> */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-in zoom-in duration-300">
+              <div className="text-center space-y-4">
+                {/* Success Icon */}
+                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-8 h-8 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+
+                {/* Title */}
+                <h3 className="text-2xl font-bold text-green-600">सफल</h3>
+
+                {/* Description */}
+                <p className="text-lg text-gray-700">
+                  आपकी प्रविष्टि सफलता पूर्वक प्राप्त हो गई है धन्यवाद!
+                </p>
+
+                {/* Optional: Close Button */}
+                <Button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="mt-4"
+                  variant="outline"
+                >
+                  बंद करें
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {showCropModal && (
           <div className="fixed inset-0 z-50 items-start bg-black/70 flex justify-center">
@@ -1215,7 +1289,7 @@ const fetchAddressFromPincode = async (pin: string) => {
             शारीरिक विवरण
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <FormField label="ऊँचाई" error={errors.height}>
+            <FormField label="ऊँचाई" error={errors.height} required>
               <div className="grid grid-cols-2 gap-4">
                 {/* Feet */}
                 <div className="relative">
