@@ -251,6 +251,7 @@ const RegistrationForm = () => {
       "fatherIncome",
       "height",
       "weight",
+      ""
     ];
 
     if (!numericFields.includes(name)) {
@@ -477,9 +478,9 @@ const RegistrationForm = () => {
       payload.append("height_feet", heightFeet);
       payload.append("height_inch", heightInch);
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/matrimonial`,{
-      // const res = await fetch(`http://localhost:3000/api/matrimonial`, {
+      // const res = await fetch(
+      //   `${import.meta.env.VITE_API_URL}/api/matrimonial`,{
+      const res = await fetch(`http://localhost:3000/api/matrimonial`, {
         method: "POST",
         body: payload,
       });
@@ -531,6 +532,7 @@ const RegistrationForm = () => {
 
       setHeightFeet("");
       setHeightInch("");
+      setPincode("");
       setErrors({});
 
       // ✅ ADD THESE LINES - Reset all image-related states
@@ -548,7 +550,7 @@ const RegistrationForm = () => {
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);
-      }, 5000);
+      }, 20000);
 
       // toast({
       //   title: "सफल",
@@ -961,6 +963,22 @@ const RegistrationForm = () => {
             </FormField>
           </div>
         </div>
+
+        {isSubmitting && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+      <div className="text-center space-y-4">
+        {/* Loading Spinner */}
+        <div className="mx-auto w-16 h-16 border-4 border-maroon/30 border-t-maroon rounded-full animate-spin" />
+        
+        {/* Loading Message */}
+        <p className="text-lg text-gray-700">
+          कृपया प्रतीक्षा करें, आपका फॉर्म सबमिट हो रहा है...
+        </p>
+      </div>
+    </div>
+  </div>
+)}
 
         {/* Success Modal - Add this before the last closing </div> */}
         {showSuccessModal && (

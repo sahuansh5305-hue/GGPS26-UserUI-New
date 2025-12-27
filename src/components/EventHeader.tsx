@@ -1,17 +1,15 @@
 import { Calendar, Clock, MapPin, CalendarCheck } from "lucide-react";
-import chotiMataImage from "@/assets/choti-mata.jpeg";
-import gotamMuniImage from "@/assets/gotam-muni.jpg";
 
 const EventHeader = () => {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-maroon to-maroon-dark pt-6 pr-6 pb-6 pl-10 shadow-card animate-fade-in">
+    <div className="relative overflow-hidden h-96 sm:h-auto rounded-2xl bg-gradient-to-br from-maroon to-maroon-dark pt-6 pr-6 pb-6 pl-10 shadow-card animate-fade-in">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-32 h-32 bg-gold/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-40 h-40 bg-saffron/10 rounded-full translate-x-1/3 translate-y-1/3" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-pattern opacity-5" />
 
       {/* Top images - vertical column */}
-      <div className="absolute left-6 flex flex-col items-center gap-3 sm:gap-1">
+      <div className="absolute left-6 flex flex-col items-center gap-1 sm:gap-1">
         {/* Image 1 */}
         <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-gold/50 shadow-lg">
           <img
@@ -31,7 +29,7 @@ const EventHeader = () => {
         </div>
       </div>
 
-      <div className="absolute  right-6 w-20 h-40 md:w-24 md:max-h-36 rounded-lg overflow-hidden -mt-3">
+      <div className="absolute  right-6 w-20 h-28 sm:h-40 md:w-24 md:max-h-36 rounded-lg overflow-hidden -mt-3">
         <img
           src="/images/gautamuni.png"
           alt="गौतम मुनि"
@@ -39,9 +37,9 @@ const EventHeader = () => {
         />
       </div>
 
-      <div className="relative top-10 sm:top-2 z-10 right-3 text-center space-y-4">
+      <div className="relative top-16  sm:top-2 z-10 right-3 text-center">
         {/* Main title */}
-        <div className="space-y-2">
+        <div className="space-y-0.5">
           <p className="text-gold text-base md:text-lg font-medium animate-fade-in animation-delay-100">
             || श्री गणेशाय नमः ||
           </p>
@@ -64,47 +62,90 @@ const EventHeader = () => {
         </div>
 
         {/* Event details - reduced height */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mt-4 animate-fade-in animation-delay-500">
-          <div className="flex items-center justify-center gap-2 bg-secondary-foreground/10 backdrop-blur-sm rounded-lg p-2 md:p-3 border border-gold/20 hover:border-gold/40 transition-colors">
-            <Calendar className="w-4 h-4 md:w-5 md:h-5 text-gold flex-shrink-0" />
-            <div className="text-left">
-              <p className="text-secondary-foreground/70 text-xs">दिनांक</p>
-              <p className="text-secondary-foreground font-semibold text-xs md:text-sm">
-                23-03-2026 (रविवार)
-              </p>
-            </div>
-          </div>
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2 md:gap-3">
 
-          <div className="flex items-center justify-center gap-2 bg-secondary-foreground/10 backdrop-blur-sm rounded-lg p-2 md:p-3 border border-gold/20 hover:border-gold/40 transition-colors">
-            <Clock className="w-4 h-4 md:w-5 md:h-5 text-gold flex-shrink-0" />
-            <div className="text-left">
-              <p className="text-secondary-foreground/70 text-xs">समय</p>
-              <p className="text-secondary-foreground font-semibold text-xs md:text-sm">
-                सुबह 9 बजे
-              </p>
-            </div>
-          </div>
+  {/* CARD */}
+  <div className="
+    flex items-center
+    gap-1.5 sm:gap-2
+    bg-secondary-foreground/10 backdrop-blur-sm
+    rounded-md sm:rounded-lg
+    p-1.5 sm:p-2 md:p-3
+    border border-gold/20 hover:border-gold/40 transition-all
+  ">
+    {/* ICON */}
+    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gold flex-shrink-0" />
 
-          <div className="flex items-center justify-center gap-2 bg-secondary-foreground/10 backdrop-blur-sm rounded-lg p-2 md:p-3 border border-gold/20 hover:border-gold/40 transition-colors">
-            <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gold flex-shrink-0" />
-            <div className="text-left">
-              <p className="text-secondary-foreground/70 text-xs">स्थान</p>
-              <p className="text-secondary-foreground font-semibold text-xs md:text-sm">
-                देवास
-              </p>
-            </div>
-          </div>
+    {/* CONTENT */}
+    <div className="
+      flex items-center gap-1
+      sm:flex-col sm:items-start sm:gap-0.5
+    ">
+      {/* LABEL */}
+      <span className=" hidden sm:block
+        text-secondary-foreground/70
+        text-[10px] sm:text-xs
+        whitespace-nowrap
+      ">
+        दिनांक
+      </span>
 
-          <div className="flex items-center justify-center gap-2 bg-secondary-foreground/10 backdrop-blur-sm rounded-lg p-2 md:p-3 border border-gold/20 hover:border-gold/40 transition-colors">
-            <CalendarCheck className="w-4 h-4 md:w-5 md:h-5 text-gold flex-shrink-0" />
-            <div className="text-left">
-              <p className="text-secondary-foreground/70 text-xs">अंतिम तिथि</p>
-              <p className="text-secondary-foreground font-semibold text-xs md:text-sm">
-                28-02-2026
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* VALUE */}
+      <span className="
+        text-secondary-foreground font-semibold
+        text-[11px] sm:text-xs md:text-sm
+        whitespace-nowrap
+      ">
+        23-03-2026 (रविवार)
+      </span>
+    </div>
+  </div>
+
+  {/* TIME */}
+  <div className="flex items-center gap-1.5 sm:gap-2 bg-secondary-foreground/10 backdrop-blur-sm
+                  rounded-md sm:rounded-lg p-1.5 sm:p-2 md:p-3 border border-gold/20">
+    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gold" />
+    <div className="flex items-center gap-1 sm:flex-col sm:items-start">
+      <span className="text-secondary-foreground/70 text-[10px] sm:text-xs whitespace-nowrap">
+        समय
+      </span>
+      <span className="text-secondary-foreground font-semibold text-[11px] sm:text-xs md:text-sm whitespace-nowrap">
+        सुबह 9 बजे
+      </span>
+    </div>
+  </div>
+
+  {/* LOCATION */}
+  <div className="flex items-center gap-1.5 sm:gap-2 bg-secondary-foreground/10 backdrop-blur-sm
+                  rounded-md sm:rounded-lg p-1.5 sm:p-2 md:p-3 border border-gold/20">
+    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gold" />
+    <div className="flex items-center gap-1 sm:flex-col sm:items-start">
+      <span className="text-secondary-foreground/70 text-[10px] sm:text-xs whitespace-nowrap">
+        स्थान
+      </span>
+      <span className="text-secondary-foreground font-semibold text-[11px] sm:text-xs md:text-sm whitespace-nowrap">
+        देवास
+      </span>
+    </div>
+  </div>
+
+  {/* DEADLINE */}
+  <div className="flex items-center gap-1.5 sm:gap-2 bg-secondary-foreground/10 backdrop-blur-sm
+                  rounded-md sm:rounded-lg p-1.5 sm:p-2 md:p-3 border border-gold/20">
+    <CalendarCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gold" />
+    <div className="flex items-center gap-1 sm:flex-col sm:items-start">
+      <span className="text-secondary-foreground/70 text-[10px] sm:text-xs whitespace-nowrap">
+        अंतिम तिथि
+      </span>
+      <span className="text-secondary-foreground font-semibold text-[11px] sm:text-xs md:text-sm whitespace-nowrap">
+        28-02-2026
+      </span>
+    </div>
+  </div>
+
+</div>
+
+
       </div>
     </div>
   );

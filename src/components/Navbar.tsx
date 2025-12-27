@@ -7,6 +7,7 @@ const navLinks = [
   { name: "Home", path: "/" },
   { name: "About Us", path: "/about" },
   { name: "Contact Us", path: "/contact" },
+  { name: "Privacy & Terms", path: "/privacynterms" },
 ];
 
 const Navbar = () => {
@@ -15,32 +16,36 @@ const Navbar = () => {
 
   return (
     <nav className="bg-primary/95 backdrop-blur-sm shadow-lg sticky top-0 z-50">
-      <div className="container mx-auto px-4 flex justify-center">
-        <div className="flex items-center justify-between h-16">
+      <div className="container mx-auto px-4">
+
+        {/* TOP BAR */}
+        <span className="flex items-center justify-between h-16">
+
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <span className="hidden md:flex items-center space-x-8 mx-auto">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  "text-primary-foreground/80 hover:text-gold transition-colors duration-300 font-medium",
-                  location.pathname === link.path && "text-gold border-b-2 border-gold pb-1"
+                  "text-primary-foreground/80 hover:text-gold transition-colors font-medium",
+                  location.pathname === link.path &&
+                    "text-gold border-b-2 border-gold pb-1"
                 )}
               >
                 {link.name}
               </Link>
             ))}
-          </div>
+          </span>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button (RIGHT SIDE) */}
           <button
-            className="md:hidden text-primary-foreground"
+            className="md:hidden text-primary-foreground ml-auto"
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-        </div>
+        </span>
 
         {/* Mobile Navigation */}
         {isOpen && (
@@ -52,7 +57,8 @@ const Navbar = () => {
                 onClick={() => setIsOpen(false)}
                 className={cn(
                   "block py-3 text-primary-foreground/80 hover:text-gold transition-colors",
-                  location.pathname === link.path && "text-gold font-medium"
+                  location.pathname === link.path &&
+                    "text-gold font-medium"
                 )}
               >
                 {link.name}
@@ -60,6 +66,7 @@ const Navbar = () => {
             ))}
           </div>
         )}
+
       </div>
     </nav>
   );
