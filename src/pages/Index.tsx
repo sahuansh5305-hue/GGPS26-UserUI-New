@@ -1,23 +1,10 @@
 import EventHeader from "@/components/EventHeader";
 import RegistrationForm from "@/components/RegistrationForm";
-import Navbar from "@/components/Navbar";
 // import coupleBackground from "@/assets/couple-background.jpg";
 
 const Index = () => {
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-primary/10 via-background to-gold/10 sparkle-bg">
-      <Navbar></Navbar>
-      {/* Full screen background image */}
-      {/* <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-  backgroundImage: "url('/images/coupleimage.jpg')",
-}}
-
-      /> */}
-      {/* Dark overlay for better readability */}
-      {/* <div className="fixed inset-0 bg-black/50" /> */}
-
       <main className="relative z-10 container mx-auto px-4 py-8 md:py-12 max-w-4xl">
         {/* Event Header */}
         <EventHeader />

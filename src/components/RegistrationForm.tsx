@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { createPortal } from "react-dom";
 import {
   Select,
   SelectContent,
@@ -263,27 +264,57 @@ const RegistrationForm = () => {
       // }
     }
 
+     // ✅ For Hindi text fields, MUST be in Hindi
+  if (HINDI_TEXT_FIELDS.includes(name)) {
+    if (containsEnglish(strValue)) {
+      return "कृपया हिंदी सुझाव में से चुनें (अंग्रेजी अनुमत नहीं है)";
+    }
+    if (!isValidHindi(strValue)) {
+      return "कृपया केवल हिंदी भाषा का प्रयोग करें";
+    }
+  }
+
     return undefined;
   };
 
-  const handleChange = async (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
+const handleChange = async (
+  e: ChangeEvent<HTMLInputElement | HTMLTextArrayElement>
+) => {
+  const { name, value } = e.target;
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setActiveField(name);
+  // ✅ For Hindi fields, mark as "pending selection" if contains English
+  if (HINDI_TEXT_FIELDS.includes(name)) {
+    if (containsEnglish(value)) {
+      // User is typing English - show error until they select from suggestions
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      setActiveField(name);
+      
+      setErrors((prev) => ({ 
+        ...prev, 
+        [name]: "कृपया नीचे दिए गए हिंदी सुझाव में से चुनें" 
+      }));
 
-    const error = validateField(name, value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
-
-    if (HINDI_TEXT_FIELDS.includes(name)) {
+      // Fetch suggestions
       const suggestions = await fetchHindiSuggestions(value);
       setHindiSuggestions(suggestions);
-    } else {
-      setHindiSuggestions([]);
+      return;
     }
-  };
+  }
+
+  // Normal flow for non-English or after selection
+  setFormData((prev) => ({ ...prev, [name]: value }));
+  setActiveField(name);
+
+  const error = validateField(name, value);
+  setErrors((prev) => ({ ...prev, [name]: error }));
+
+  if (HINDI_TEXT_FIELDS.includes(name)) {
+    const suggestions = await fetchHindiSuggestions(value);
+    setHindiSuggestions(suggestions);
+  } else {
+    setHindiSuggestions([]);
+  }
+};
 
   const HINDI_TEXT_FIELDS = [
     "candidateName",
@@ -805,26 +836,35 @@ const RegistrationForm = () => {
     }
   };
 
-  const HindiSuggestionBox = ({ field }: { field: string }) => {
-    if (activeField !== field || hindiSuggestions.length === 0) return null;
+ const HindiSuggestionBox = ({ field }: { field: string }) => {
+  if (activeField !== field || hindiSuggestions.length === 0) return null;
 
-    return (
-      <ul className="absolute z-50 w-full bg-white border rounded shadow mt-1 max-h-40 overflow-auto">
+  return (
+    <div className="relative">
+      {/* ✅ Add instruction text */}
+      <p className="text-xs text-maroon bg-yellow-50 px-2 py-1 border-b">
+        नीचे से हिंदी विकल्प चुनें
+      </p>
+      
+      <ul className="absolute z-50 w-full bg-white border rounded shadow max-h-40 overflow-auto">
         {hindiSuggestions.map((item, index) => (
           <li
             key={index}
             onClick={() => {
               setFormData((prev) => ({ ...prev, [field]: item }));
               setHindiSuggestions([]);
+              // ✅ Clear error when user selects
+              setErrors((prev) => ({ ...prev, [field]: undefined }));
             }}
-            className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+            className="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b last:border-b-0"
           >
             {item}
           </li>
         ))}
       </ul>
-    );
-  };
+    </div>
+  );
+};
 
   return (
     <div className="relative">
@@ -964,8 +1004,9 @@ const RegistrationForm = () => {
           </div>
         </div>
 
-        {isSubmitting && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+{/* Loading Modal - Now using Portal */}
+{isSubmitting && createPortal(
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
     <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
       <div className="text-center space-y-4">
         {/* Loading Spinner */}
@@ -977,98 +1018,102 @@ const RegistrationForm = () => {
         </p>
       </div>
     </div>
-  </div>
+  </div>,
+  document.body
 )}
 
-        {/* Success Modal - Add this before the last closing </div> */}
-        {showSuccessModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-in zoom-in duration-300">
-              <div className="text-center space-y-4">
-                {/* Success Icon */}
-                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-8 h-8 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
+{/* Success Modal - Now using Portal */}
+{showSuccessModal && createPortal(
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-in zoom-in duration-300">
+      <div className="text-center space-y-4">
+        {/* Success Icon */}
+        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+          <svg
+            className="w-8 h-8 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
 
-                {/* Title */}
-                <h3 className="text-2xl font-bold text-green-600">सफल</h3>
+        {/* Title */}
+        <h3 className="text-2xl font-bold text-green-600">सफल</h3>
 
-                {/* Description */}
-                <p className="text-lg text-gray-700">
-                  आपकी प्रविष्टि सफलता पूर्वक प्राप्त हो गई है धन्यवाद!
-                </p>
+        {/* Description */}
+        <p className="text-lg text-gray-700">
+          आपकी प्रविष्टि सफलता पूर्वक प्राप्त हो गई है धन्यवाद!
+        </p>
 
-                {/* Optional: Close Button */}
-                <Button
-                  onClick={() => setShowSuccessModal(false)}
-                  className="mt-4"
-                  variant="outline"
-                >
-                  बंद करें
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Optional: Close Button */}
+        <Button
+          onClick={() => setShowSuccessModal(false)}
+          className="mt-4"
+          variant="outline"
+        >
+          बंद करें
+        </Button>
+      </div>
+    </div>
+  </div>,
+  document.body
+)}
 
-        {showCropModal && (
-          <div className="fixed inset-0 z-50 items-start bg-black/70 flex justify-center">
-            <div className="bg-white rounded-xl w-[90vw] max-w-md p-4 space-y-4">
-              <h4 className="text-lg font-semibold text-center">
-                फोटो क्रॉप करें
-              </h4>
+{/* Crop Modal - Now using Portal */}
+{showCropModal && createPortal(
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70">
+    <div className="bg-white rounded-xl w-[90vw] max-w-md p-4 space-y-4">
+      <h4 className="text-lg font-semibold text-center">
+        फोटो क्रॉप करें
+      </h4>
 
-              <div className="relative w-full h-64 bg-black">
-                <Cropper
-                  image={imageSrc!}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={1}
-                  onCropChange={setCrop}
-                  onZoomChange={setZoom}
-                  onCropComplete={onCropComplete}
-                />
-              </div>
+      <div className="relative w-full h-64 bg-black">
+        <Cropper
+          image={imageSrc!}
+          crop={crop}
+          zoom={zoom}
+          aspect={1}
+          onCropChange={setCrop}
+          onZoomChange={setZoom}
+          onCropComplete={onCropComplete}
+        />
+      </div>
 
-              <input
-                type="range"
-                min={1}
-                max={3}
-                step={0.1}
-                value={zoom}
-                onChange={(e) => setZoom(+e.target.value)}
-              />
+      <input
+        type="range"
+        min={1}
+        max={3}
+        step={0.1}
+        value={zoom}
+        onChange={(e) => setZoom(+e.target.value)}
+      />
 
-              <div className="flex justify-between">
-                <Button
-                  type="button" // ✅ Add this
-                  variant="outline"
-                  onClick={() => setShowCropModal(false)}
-                >
-                  रद्द करें
-                </Button>
-                <Button
-                  type="button" // ✅ Add this
-                  onClick={saveCroppedImage}
-                >
-                  सेव करें
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="flex justify-between">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setShowCropModal(false)}
+        >
+          रद्द करें
+        </Button>
+        <Button
+          type="button"
+          onClick={saveCroppedImage}
+        >
+          सेव करें
+        </Button>
+      </div>
+    </div>
+  </div>,
+  document.body
+)}
 
         {/* Section: जन्म विवरण */}
         <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
