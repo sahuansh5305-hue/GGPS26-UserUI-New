@@ -644,10 +644,7 @@ const handleSubmit = async (e: FormEvent) => {
       fileInputRef.current.value = "";
     }
 
-    setShowSuccessModal(true);
-    setTimeout(() => {
-      setShowSuccessModal(false);
-    });
+   setShowSuccessModal(true);
 
   } catch (err: any) {
     console.error("Submission error:", err);
