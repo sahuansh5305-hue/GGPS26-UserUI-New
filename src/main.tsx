@@ -1,7 +1,7 @@
 // ✅ ADD THIS AT THE VERY TOP
 // Redirect www to non-www
 if (window.location.hostname === 'www.dewasps26.gautamsetu.com') {
-  window.location.replace('https://dewasps26.gautamsetu.com' + window.location.pathname + window.location.search);
+  window.location.replace('https://dewasps26.gautamsetu.com');
 }
 
 import { createRoot } from "react-dom/client";
