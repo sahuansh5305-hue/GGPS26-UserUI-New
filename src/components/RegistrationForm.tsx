@@ -647,7 +647,7 @@ const handleSubmit = async (e: FormEvent) => {
     setShowSuccessModal(true);
     setTimeout(() => {
       setShowSuccessModal(false);
-    }, 5000);
+    });
 
   } catch (err: any) {
     console.error("Submission error:", err);
@@ -1246,7 +1246,7 @@ const HindiSuggestionBox = ({ field }: { field: string }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FormField label="जन्म दिनांक" error={errors.birthDate} required>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground  z-10" />
                 <Input
                   type="date"
                   name="birthDate"
@@ -1258,8 +1258,8 @@ const HindiSuggestionBox = ({ field }: { field: string }) => {
             </FormField>
 
             <FormField label="जन्म समय" error={errors.birthTime} required>
-              <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
+              <div className="relative w-full">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                 <Input
                   type="time"
                   name="birthTime"
@@ -1271,7 +1271,7 @@ const HindiSuggestionBox = ({ field }: { field: string }) => {
             </FormField>
 
             <FormField label="जन्म स्थान" error={errors.birthPlace} required>
-              <div className="relative">
+              <div className="relative w-full">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <div className="relative">
                   <Input
