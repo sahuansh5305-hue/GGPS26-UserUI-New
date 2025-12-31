@@ -1264,7 +1264,7 @@ const RegistrationForm = () => {
                   name="birthTime"
                   value={formData.birthTime}
                   onChange={handleChange}
-                  className="pl-11 w-full min-w-0 appearance-none"
+                  className="pl-11 w-full min-w-0"
                 />
               </div>
             </FormField>
