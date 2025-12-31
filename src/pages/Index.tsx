@@ -26,7 +26,7 @@ const Index = () => {
             {/* Pramod Vyas */}
             <div className="text-center">
               <p className="font-semibold">प्रमोद व्यास</p>
-              <p className="italic">(संरक्षक अखिल भारतीय युवक-युवती परिचय सम्मेलन देवास )</p>
+              <p className="italic md:whitespace-nowrap">(संरक्षक अखिल भारतीय युवक-युवती परिचय सम्मेलन देवास )</p>
               <p className="mt-1">📞 9425494210</p>
             </div>
 
