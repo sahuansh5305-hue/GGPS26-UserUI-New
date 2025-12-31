@@ -521,7 +521,7 @@ const handleChange = async (
     return undefined;
   };
 
- const handleSubmit = async (e: FormEvent) => {
+const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
 
   if (!validateForm()) {
@@ -558,24 +558,40 @@ const handleChange = async (
     payload.append("height_feet", heightFeet);
     payload.append("height_inch", heightInch);
 
+    // ✅ Add better error handling
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/api/matrimonial`,
-      // `http://localhost:3000/api/matrimonial`, 
       {
         method: "POST",
         body: payload,
       }
-    );
+    ).catch((error) => {
+      // Network error (CORS, no internet, server down)
+      console.error("Network error:", error);
+      throw new Error("सर्वर से कनेक्ट नहीं हो पा रहा है। कृपया अपना इंटरनेट कनेक्शन जांचें।");
+    });
 
+    // Check if response is ok before parsing JSON
+    if (!res.ok) {
+      let errorMessage = "फॉर्म सबमिट करने में त्रुटि";
+      
+      try {
+        const data = await res.json();
+        errorMessage = data?.message || errorMessage;
+      } catch {
+        // If JSON parsing fails, use default message
+        errorMessage = `सर्वर त्रुटि (${res.status})`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+
+    // Parse successful response
     let data;
     try {
       data = await res.json();
     } catch {
-      throw new Error("Server response invalid");
-    }
-
-    if (!res.ok) {
-      throw new Error(data?.message || "Submission failed");
+      throw new Error("सर्वर का जवाब समझ नहीं आया");
     }
 
     // ✅ SUCCESS → RESET FORM
@@ -621,8 +637,8 @@ const handleChange = async (
     setZoom(1);
     setCroppedAreaPixels(null);
     setShowCropModal(false);
-    setIsOtherOccupation(false); // ✅ Reset occupation mode
-    setIsOtherFatherOccupation(false); // ✅ Reset father occupation mode
+    setIsOtherOccupation(false);
+    setIsOtherFatherOccupation(false);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -634,9 +650,11 @@ const handleChange = async (
     }, 5000);
 
   } catch (err: any) {
+    console.error("Submission error:", err);
+    
     toast({
       title: "त्रुटि",
-      description: err.message || "डेटा सेव नहीं हुआ",
+      description: err.message || "डेटा सेव नहीं हुआ। कृपया पुनः प्रयास करें।",
       variant: "destructive",
     });
   } finally {

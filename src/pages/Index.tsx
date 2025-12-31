@@ -26,14 +26,14 @@ const Index = () => {
             {/* Pramod Vyas */}
             <div className="text-center">
               <p className="font-semibold">प्रमोद व्यास</p>
-              <p className="italic">(संरक्षक अखिल भारतीय युवक-युवती परिचय सम्मेलन)</p>
+              <p className="italic">(संरक्षक अखिल भारतीय युवक-युवती परिचय सम्मेलन देवास )</p>
               <p className="mt-1">📞 9425494210</p>
             </div>
 
             {/* Suneel Sharma */}
             <div className="text-center">
               <p className="font-semibold">सुनील शर्मा</p>
-              <p className="italic">(संरक्षक)</p>
+              <p className="italic">(जिला प्रभारी)</p>
               <p className="mt-1">📞 8959300245</p>
             </div>
           </div>

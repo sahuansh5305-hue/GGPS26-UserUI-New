@@ -135,10 +135,10 @@ const EventHeader = () => {
     <CalendarCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gold" />
     <div className="flex items-center gap-1 sm:flex-col sm:items-start">
       <span className="text-secondary-foreground/70 text-[10px] sm:text-xs whitespace-nowrap">
-       पंजीकरण कि अंतिम तिथि
+    <span className="sm:hidden"> पंजीकरण की</span> अंतिम तिथि
       </span>
       <span className="text-secondary-foreground font-semibold text-[11px] sm:text-xs md:text-sm whitespace-nowrap">
-        28 मार्च 2026
+        28 फरवरी 2026
       </span>
     </div>
   </div>
