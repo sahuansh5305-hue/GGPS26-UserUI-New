@@ -124,7 +124,7 @@ const EventHeader = () => {
         स्थान
       </span>
       <span className="text-secondary-foreground font-semibold text-[11px] sm:text-xs md:text-sm whitespace-nowrap">
-        देवास
+       श्याम गार्डन, देवास
       </span>
     </div>
   </div>
