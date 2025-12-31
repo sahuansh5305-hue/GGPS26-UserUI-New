@@ -40,3 +40,28 @@
 .read-the-docs {
   color: #888;
 }
+/* iOS Safari date/time input fix */
+input[type="date"],
+input[type="time"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  text-align: left;
+  min-width: 0;
+  width: 100%;
+}
+
+@supports (-webkit-touch-callout: none) {
+  input[type="date"],
+  input[type="time"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: block !important;
+  }
+}
