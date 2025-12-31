@@ -78,10 +78,9 @@ const Index = () => {
     <span className="hidden sm:inline">|</span>
 
     <a
-      href="dewasparichaysammelan26@gmail.com"
       className="hover:underline break-all"
     >
-      dewasparichaysammelan26@gmail.com
+      dewasparichaysammelan26@gmail.com (Support Contact)
     </a>
   </div>
 </footer>
