@@ -168,38 +168,38 @@ const RegistrationForm = () => {
   });
 
   const FIELD_LABELS: { [key: string]: string } = {
-  candidateName: "प्रत्याशी का नाम",
-  fatherName: "पिता का नाम",
-  motherName: "माता का नाम",
-  birthDate: "जन्म दिनांक",
-  birthTime: "जन्म समय",
-  birthPlace: "जन्म स्थान",
-  parichay: "परिचय",
-  nakshatra: "नक्षत्र",
-  charan: "चरण",
-  rashi: "राशि",
-  nadi: "नाड़ी",
-  manglik: "मांगलिक",
-  patrikaRequired: "पत्रिका मिलान आवश्यक है?",
-  height: "ऊँचाई",
-  complexion: "रंग",
-  weight: "वजन (किलोग्राम)",
-  gotra: "गोत्र (स्वयं)",
-  nanihal: "गोत्र (ननिहाल)",
-  education: "शैक्षणिक योग्यता",
-  occupation: "व्यवसाय",
-  monthlyIncome: "मासिक आय",
-  fatherOccupation: "पिता का व्यवसाय",
-  fatherIncome: "पिता की मासिक आय",
-  fullAddress: "पूर्ण पता",
-  district: "जिला",
-  tehsil: "तहसील",
-  candidateMobile: "प्रत्याशी का मोबाइल नंबर",
-  guardianMobileNumbers: "अभिभावक मोबाइल नंबर",
-  photo: "प्रत्याशी की फोटो",
-};
+    candidateName: "प्रत्याशी का नाम",
+    fatherName: "पिता का नाम",
+    motherName: "माता का नाम",
+    birthDate: "जन्म दिनांक",
+    birthTime: "जन्म समय",
+    birthPlace: "जन्म स्थान",
+    parichay: "परिचय",
+    nakshatra: "नक्षत्र",
+    charan: "चरण",
+    rashi: "राशि",
+    nadi: "नाड़ी",
+    manglik: "मांगलिक",
+    patrikaRequired: "पत्रिका मिलान आवश्यक है?",
+    height: "ऊँचाई",
+    complexion: "रंग",
+    weight: "वजन (किलोग्राम)",
+    gotra: "गोत्र (स्वयं)",
+    nanihal: "गोत्र (ननिहाल)",
+    education: "शैक्षणिक योग्यता",
+    occupation: "व्यवसाय",
+    monthlyIncome: "मासिक आय",
+    fatherOccupation: "पिता का व्यवसाय",
+    fatherIncome: "पिता की मासिक आय",
+    fullAddress: "पूर्ण पता",
+    district: "जिला",
+    tehsil: "तहसील",
+    candidateMobile: "प्रत्याशी का मोबाइल नंबर",
+    guardianMobileNumbers: "अभिभावक मोबाइल नंबर",
+    photo: "प्रत्याशी की फोटो",
+  };
 
-// for temporary UI state
+  // for temporary UI state
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInch, setHeightInch] = useState("");
 
@@ -225,8 +225,8 @@ const RegistrationForm = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-const [showValidationModal, setShowValidationModal] = useState(false); // ✅ Add this
-const [validationErrors, setValidationErrors] = useState<string[]>([]); // ✅ Add this
+  const [showValidationModal, setShowValidationModal] = useState(false); // ✅ Add this
+  const [validationErrors, setValidationErrors] = useState<string[]>([]); // ✅ Add this
 
   // Check if text contains English characters
   const containsEnglish = (text: string): boolean => {
@@ -287,7 +287,7 @@ const [validationErrors, setValidationErrors] = useState<string[]>([]); // ✅ A
       "fatherIncome",
       "height",
       "weight",
-      ""
+      "",
     ];
 
     if (!numericFields.includes(name)) {
@@ -299,57 +299,57 @@ const [validationErrors, setValidationErrors] = useState<string[]>([]); // ✅ A
       // }
     }
 
-     // ✅ For Hindi text fields, MUST be in Hindi
-  if (HINDI_TEXT_FIELDS.includes(name)) {
-    if (containsEnglish(strValue)) {
-      return "कृपया हिंदी सुझाव में से चुनें (अंग्रेजी अनुमत नहीं है)";
+    // ✅ For Hindi text fields, MUST be in Hindi
+    if (HINDI_TEXT_FIELDS.includes(name)) {
+      if (containsEnglish(strValue)) {
+        return "कृपया हिंदी सुझाव में से चुनें (अंग्रेजी अनुमत नहीं है)";
+      }
+      if (!isValidHindi(strValue)) {
+        return "कृपया केवल हिंदी भाषा का प्रयोग करें";
+      }
     }
-    if (!isValidHindi(strValue)) {
-      return "कृपया केवल हिंदी भाषा का प्रयोग करें";
-    }
-  }
 
     return undefined;
   };
 
-const handleChange = async (
-  e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-) => {
-  const { name, value } = e.target;
+  const handleChange = async (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
 
-  // ✅ For Hindi fields, mark as "pending selection" if contains English
-  if (HINDI_TEXT_FIELDS.includes(name)) {
-    if (containsEnglish(value)) {
-      // User is typing English - show error until they select from suggestions
-      setFormData((prev) => ({ ...prev, [name]: value }));
-      setActiveField(name);
-      
-      setErrors((prev) => ({ 
-        ...prev, 
-        [name]: "कृपया नीचे दिए गए हिंदी सुझाव में से चुनें" 
-      }));
+    // ✅ For Hindi fields, mark as "pending selection" if contains English
+    if (HINDI_TEXT_FIELDS.includes(name)) {
+      if (containsEnglish(value)) {
+        // User is typing English - show error until they select from suggestions
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setActiveField(name);
 
-      // Fetch suggestions
+        setErrors((prev) => ({
+          ...prev,
+          [name]: "कृपया नीचे दिए गए हिंदी सुझाव में से चुनें",
+        }));
+
+        // Fetch suggestions
+        const suggestions = await fetchHindiSuggestions(value);
+        setHindiSuggestions(suggestions);
+        return;
+      }
+    }
+
+    // Normal flow for non-English or after selection
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setActiveField(name);
+
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+
+    if (HINDI_TEXT_FIELDS.includes(name)) {
       const suggestions = await fetchHindiSuggestions(value);
       setHindiSuggestions(suggestions);
-      return;
+    } else {
+      setHindiSuggestions([]);
     }
-  }
-
-  // Normal flow for non-English or after selection
-  setFormData((prev) => ({ ...prev, [name]: value }));
-  setActiveField(name);
-
-  const error = validateField(name, value);
-  setErrors((prev) => ({ ...prev, [name]: error }));
-
-  if (HINDI_TEXT_FIELDS.includes(name)) {
-    const suggestions = await fetchHindiSuggestions(value);
-    setHindiSuggestions(suggestions);
-  } else {
-    setHindiSuggestions([]);
-  }
-};
+  };
 
   const HINDI_TEXT_FIELDS = [
     "candidateName",
@@ -521,143 +521,145 @@ const handleChange = async (
     return undefined;
   };
 
-const handleSubmit = async (e: FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
 
-  if (!validateForm()) {
-    // ✅ Collect all error messages with Hindi field names
-    const errorMessages: string[] = [];
-    
-    Object.entries(errors).forEach(([field, error]) => {
-      if (error) {
-        const fieldLabel = FIELD_LABELS[field] || field;
-        errorMessages.push(`${fieldLabel}: ${error}`);
-      }
-    });
+    if (!validateForm()) {
+      // ✅ Collect all error messages with Hindi field names
+      const errorMessages: string[] = [];
 
-    setValidationErrors(errorMessages);
-    setShowValidationModal(true);
-    return;
-  }
+      Object.entries(errors).forEach(([field, error]) => {
+        if (error) {
+          const fieldLabel = FIELD_LABELS[field] || field;
+          errorMessages.push(`${fieldLabel}: ${error}`);
+        }
+      });
 
-  setIsSubmitting(true);
-
-  try {
-    const payload = new FormData();
-
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === "guardianMobileNumbers") {
-        payload.append(key, JSON.stringify(value));
-      } else if (key === "photo" && value instanceof File) {
-        payload.append("photo", value);
-      } else if (typeof value === "string") {
-        payload.append(key, value);
-      }
-    });
-
-    payload.append("height_feet", heightFeet);
-    payload.append("height_inch", heightInch);
-
-    // ✅ Add better error handling
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/matrimonial`,
-      {
-        method: "POST",
-        body: payload,
-      }
-    ).catch((error) => {
-      // Network error (CORS, no internet, server down)
-      console.error("Network error:", error);
-      throw new Error("सर्वर से कनेक्ट नहीं हो पा रहा है। कृपया अपना इंटरनेट कनेक्शन जांचें।");
-    });
-
-    // Check if response is ok before parsing JSON
-    if (!res.ok) {
-      let errorMessage = "फॉर्म सबमिट करने में त्रुटि";
-      
-      try {
-        const data = await res.json();
-        errorMessage = data?.message || errorMessage;
-      } catch {
-        // If JSON parsing fails, use default message
-        errorMessage = `सर्वर त्रुटि (${res.status})`;
-      }
-      
-      throw new Error(errorMessage);
+      setValidationErrors(errorMessages);
+      setShowValidationModal(true);
+      return;
     }
 
-    // Parse successful response
-    let data;
+    setIsSubmitting(true);
+
     try {
-      data = await res.json();
-    } catch {
-      throw new Error("सर्वर का जवाब समझ नहीं आया");
+      const payload = new FormData();
+
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "guardianMobileNumbers") {
+          payload.append(key, JSON.stringify(value));
+        } else if (key === "photo" && value instanceof File) {
+          payload.append("photo", value);
+        } else if (typeof value === "string") {
+          payload.append(key, value);
+        }
+      });
+
+      payload.append("height_feet", heightFeet);
+      payload.append("height_inch", heightInch);
+
+      // ✅ Add better error handling
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/matrimonial`,
+        {
+          method: "POST",
+          body: payload,
+        }
+      ).catch((error) => {
+        // Network error (CORS, no internet, server down)
+        console.error("Network error:", error);
+        throw new Error(
+          "सर्वर से कनेक्ट नहीं हो पा रहा है। कृपया अपना इंटरनेट कनेक्शन जांचें।"
+        );
+      });
+
+      // Check if response is ok before parsing JSON
+      if (!res.ok) {
+        let errorMessage = "फॉर्म सबमिट करने में त्रुटि";
+
+        try {
+          const data = await res.json();
+          errorMessage = data?.message || errorMessage;
+        } catch {
+          // If JSON parsing fails, use default message
+          errorMessage = `सर्वर त्रुटि (${res.status})`;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      // Parse successful response
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("सर्वर का जवाब समझ नहीं आया");
+      }
+
+      // ✅ SUCCESS → RESET FORM
+      setFormData({
+        candidateName: "",
+        fatherName: "",
+        motherName: "",
+        birthDate: "",
+        birthTime: "",
+        birthPlace: "",
+        otherDetails: "",
+        parichay: "",
+        nakshatra: "",
+        charan: "",
+        rashi: "",
+        nadi: "",
+        manglik: "",
+        patrikaRequired: "",
+        height: "",
+        complexion: "",
+        weight: "",
+        gotra: "",
+        nanihal: "",
+        education: "",
+        occupation: "",
+        monthlyIncome: "",
+        fatherOccupation: "",
+        fatherIncome: "",
+        fullAddress: "",
+        tehsil: "",
+        district: "",
+        candidateMobile: "",
+        guardianMobileNumbers: [""],
+        photo: null,
+      });
+
+      setHeightFeet("");
+      setHeightInch("");
+      setPincode("");
+      setErrors({});
+      setImageSrc(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCroppedAreaPixels(null);
+      setShowCropModal(false);
+      setIsOtherOccupation(false);
+      setIsOtherFatherOccupation(false);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      setShowSuccessModal(true);
+    } catch (err: any) {
+      console.error("Submission error:", err);
+
+      toast({
+        title: "त्रुटि",
+        description:
+          err.message || "डेटा सेव नहीं हुआ। कृपया पुनः प्रयास करें।",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // ✅ SUCCESS → RESET FORM
-    setFormData({
-      candidateName: "",
-      fatherName: "",
-      motherName: "",
-      birthDate: "",
-      birthTime: "",
-      birthPlace: "",
-      otherDetails: "",
-      parichay: "",
-      nakshatra: "",
-      charan: "",
-      rashi: "",
-      nadi: "",
-      manglik: "",
-      patrikaRequired: "",
-      height: "",
-      complexion: "",
-      weight: "",
-      gotra: "",
-      nanihal: "",
-      education: "",
-      occupation: "",
-      monthlyIncome: "",
-      fatherOccupation: "",
-      fatherIncome: "",
-      fullAddress: "",
-      tehsil: "",
-      district: "",
-      candidateMobile: "",
-      guardianMobileNumbers: [""],
-      photo: null,
-    });
-
-    setHeightFeet("");
-    setHeightInch("");
-    setPincode("");
-    setErrors({});
-    setImageSrc(null);
-    setCrop({ x: 0, y: 0 });
-    setZoom(1);
-    setCroppedAreaPixels(null);
-    setShowCropModal(false);
-    setIsOtherOccupation(false);
-    setIsOtherFatherOccupation(false);
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-
-   setShowSuccessModal(true);
-
-  } catch (err: any) {
-    console.error("Submission error:", err);
-    
-    toast({
-      title: "त्रुटि",
-      description: err.message || "डेटा सेव नहीं हुआ। कृपया पुनः प्रयास करें।",
-      variant: "destructive",
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
   // const fetchAddressFromPincode = async (pin: string) => {
   //   if (pin.length !== 6) return;
@@ -897,33 +899,33 @@ const handleSubmit = async (e: FormEvent) => {
     }
   };
 
-const HindiSuggestionBox = ({ field }: { field: string }) => {
-  if (activeField !== field || hindiSuggestions.length === 0) return null;
+  const HindiSuggestionBox = ({ field }: { field: string }) => {
+    if (activeField !== field || hindiSuggestions.length === 0) return null;
 
-  return (
-    <div className="absolute left-0 right-0 top-full mt-1 z-50">
-      <p className="text-xs text-maroon bg-yellow-50 px-2 py-1 border-b rounded-t">
-        नीचे से हिंदी विकल्प चुनें
-      </p>
-      
-      <ul className="bg-white border rounded-b shadow-lg max-h-40 overflow-auto">
-        {hindiSuggestions.map((item, index) => (
-          <li
-            key={index}
-            onClick={() => {
-              setFormData((prev) => ({ ...prev, [field]: item }));
-              setHindiSuggestions([]);
-              setErrors((prev) => ({ ...prev, [field]: undefined }));
-            }}
-            className="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b last:border-b-0"
-          >
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+    return (
+      <div className="absolute left-0 right-0 top-full mt-1 z-50">
+        <p className="text-xs text-maroon bg-yellow-50 px-2 py-1 border-b rounded-t">
+          नीचे से हिंदी विकल्प चुनें
+        </p>
+
+        <ul className="bg-white border rounded-b shadow-lg max-h-40 overflow-auto">
+          {hindiSuggestions.map((item, index) => (
+            <li
+              key={index}
+              onClick={() => {
+                setFormData((prev) => ({ ...prev, [field]: item }));
+                setHindiSuggestions([]);
+                setErrors((prev) => ({ ...prev, [field]: undefined }));
+              }}
+              className="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b last:border-b-0"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
 
   return (
     <div className="relative">
@@ -1063,193 +1065,193 @@ const HindiSuggestionBox = ({ field }: { field: string }) => {
           </div>
         </div>
 
-{/* Loading Modal - Now using Portal */}
-{isSubmitting && createPortal(
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-    <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
-      <div className="text-center space-y-4">
-        {/* Loading Spinner */}
-        <div className="mx-auto w-16 h-16 border-4 border-maroon/30 border-t-maroon rounded-full animate-spin" />
-        
-        {/* Loading Message */}
-        <p className="text-lg text-gray-700">
-          कृपया प्रतीक्षा करें, आपका फॉर्म सबमिट हो रहा है...
-        </p>
-      </div>
-    </div>
-  </div>,
-  document.body
-)}
+        {/* Loading Modal - Now using Portal */}
+        {isSubmitting &&
+          createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+                <div className="text-center space-y-4">
+                  {/* Loading Spinner */}
+                  <div className="mx-auto w-16 h-16 border-4 border-maroon/30 border-t-maroon rounded-full animate-spin" />
 
-{/* Success Modal - Now using Portal */}
-{showSuccessModal && createPortal(
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-    <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-in zoom-in duration-300">
-      <div className="text-center space-y-4">
-        {/* Success Icon */}
-        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-          <svg
-            className="w-8 h-8 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
+                  {/* Loading Message */}
+                  <p className="text-lg text-gray-700">
+                    कृपया प्रतीक्षा करें, आपका फॉर्म सबमिट हो रहा है...
+                  </p>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
 
-        {/* Title */}
-        <h3 className="text-2xl font-bold text-green-600">सफल</h3>
+        {/* Success Modal - Now using Portal */}
+        {showSuccessModal &&
+          createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-in zoom-in duration-300">
+                <div className="text-center space-y-4">
+                  {/* Success Icon */}
+                  <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-8 h-8 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
 
-        {/* Description */}
-        <p className="text-lg text-gray-700">
-          आपकी प्रविष्टि सफलता पूर्वक प्राप्त हो गई है धन्यवाद!
-        </p>
+                  {/* Title */}
+                  <h3 className="text-2xl font-bold text-green-600">सफल</h3>
 
-        {/* Optional: Close Button */}
-        <Button
-          onClick={() => setShowSuccessModal(false)}
-          className="mt-4"
-          variant="outline"
-        >
-          बंद करें
-        </Button>
-      </div>
-    </div>
-  </div>,
-  document.body
-)}
+                  {/* Description */}
+                  <p className="text-lg text-gray-700">
+                    आपकी प्रविष्टि सफलता पूर्वक प्राप्त हो गई है धन्यवाद!
+                  </p>
 
-{/* Crop Modal - Now using Portal */}
-{showCropModal && createPortal(
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70">
-    <div className="bg-white rounded-xl w-[90vw] max-w-md p-4 space-y-4">
-      <h4 className="text-lg font-semibold text-center">
-        फोटो क्रॉप करें
-      </h4>
+                  {/* Optional: Close Button */}
+                  <Button
+                    onClick={() => setShowSuccessModal(false)}
+                    className="mt-4"
+                    variant="outline"
+                  >
+                    बंद करें
+                  </Button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
 
-      <div className="relative w-full h-64 bg-black">
-        <Cropper
-          image={imageSrc!}
-          crop={crop}
-          zoom={zoom}
-          aspect={1}
-          onCropChange={setCrop}
-          onZoomChange={setZoom}
-          onCropComplete={onCropComplete}
-        />
-      </div>
+        {/* Crop Modal - Now using Portal */}
+        {showCropModal &&
+          createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70">
+              <div className="bg-white rounded-xl w-[90vw] max-w-md p-4 space-y-4">
+                <h4 className="text-lg font-semibold text-center">
+                  फोटो क्रॉप करें
+                </h4>
 
-      <input
-        type="range"
-        min={1}
-        max={3}
-        step={0.1}
-        value={zoom}
-        onChange={(e) => setZoom(+e.target.value)}
-      />
+                <div className="relative w-full h-64 bg-black">
+                  <Cropper
+                    image={imageSrc!}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={1}
+                    onCropChange={setCrop}
+                    onZoomChange={setZoom}
+                    onCropComplete={onCropComplete}
+                  />
+                </div>
 
-      <div className="flex justify-between">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setShowCropModal(false)}
-        >
-          रद्द करें
-        </Button>
-        <Button
-          type="button"
-          onClick={saveCroppedImage}
-        >
-          सेव करें
-        </Button>
-      </div>
-    </div>
-  </div>,
-  document.body
-)}
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(+e.target.value)}
+                />
 
-{/* Validation Error Modal */}
-{showValidationModal &&
-  createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl p-8 max-w-2xl mx-4 shadow-2xl animate-in zoom-in duration-300 max-h-[80vh] overflow-y-auto">
-        <div className="space-y-4">
-          {/* Error Icon */}
-          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
+                <div className="flex justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowCropModal(false)}
+                  >
+                    रद्द करें
+                  </Button>
+                  <Button type="button" onClick={saveCroppedImage}>
+                    सेव करें
+                  </Button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
 
-          {/* Title */}
-          <h3 className="text-2xl font-bold text-red-600 text-center">
-            कृपया सभी आवश्यक जानकारी भरें
-          </h3>
+        {/* Validation Error Modal */}
+        {showValidationModal &&
+          createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white rounded-2xl p-8 max-w-2xl mx-4 shadow-2xl animate-in zoom-in duration-300 max-h-[80vh] overflow-y-auto">
+                <div className="space-y-4">
+                  {/* Error Icon */}
+                  <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-8 h-8 text-red-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
 
-          {/* Error List */}
-          <div className="bg-red-50 rounded-lg p-4 max-h-96 overflow-y-auto">
-            <ul className="space-y-2">
-              {validationErrors.map((error, index) => (
-                <li
-                  key={index}
-                  className="flex items-start gap-2 text-sm text-gray-700"
-                >
-                  <span className="text-red-500 mt-1">•</span>
-                  <span>{error}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+                  {/* Title */}
+                  <h3 className="text-2xl font-bold text-red-600 text-center">
+                    कृपया सभी आवश्यक जानकारी भरें
+                  </h3>
 
-          {/* Close Button */}
-          <Button
-            onClick={() => {
-              setShowValidationModal(false);
-              setValidationErrors([]);
-            }}
-            className="w-full mt-4"
-            variant="destructive"
-          >
-            बंद करें
-          </Button>
-        </div>
-      </div>
-    </div>,
-    document.body
-  )}
+                  {/* Error List */}
+                  <div className="bg-red-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+                    <ul className="space-y-2">
+                      {validationErrors.map((error, index) => (
+                        <li
+                          key={index}
+                          className="flex items-start gap-2 text-sm text-gray-700"
+                        >
+                          <span className="text-red-500 mt-1">•</span>
+                          <span>{error}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Close Button */}
+                  <Button
+                    onClick={() => {
+                      setShowValidationModal(false);
+                      setValidationErrors([]);
+                    }}
+                    className="w-full mt-4"
+                    variant="destructive"
+                  >
+                    बंद करें
+                  </Button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
 
         {/* Section: जन्म विवरण */}
-        <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
+        <div className="space-y-4 relative w-full p-6 bg-cream/30 rounded-xl border border-gold/20">
           <h4 className="text-lg font-semibold text-maroon flex items-center gap-2">
             <Calendar className="w-5 h-5" />
             जन्म विवरण
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FormField label="जन्म दिनांक" error={errors.birthDate} required>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground  z-10" />
+              <div className="relative w-full">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                 <Input
                   type="date"
                   name="birthDate"
                   value={formData.birthDate}
                   onChange={handleChange}
-                  className="pl-11"
+                  className="pl-11 w-full min-w-0 appearance-none"
                 />
               </div>
             </FormField>
@@ -1262,7 +1264,7 @@ const HindiSuggestionBox = ({ field }: { field: string }) => {
                   name="birthTime"
                   value={formData.birthTime}
                   onChange={handleChange}
-                  className="pl-11"
+                  className="pl-11 w-full min-w-0 appearance-none"
                 />
               </div>
             </FormField>
