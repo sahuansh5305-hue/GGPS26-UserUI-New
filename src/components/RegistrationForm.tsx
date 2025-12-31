@@ -302,7 +302,7 @@ const RegistrationForm = () => {
     // ✅ For Hindi text fields, MUST be in Hindi
     if (HINDI_TEXT_FIELDS.includes(name)) {
       if (containsEnglish(strValue)) {
-        return "कृपया हिंदी सुझाव में से चुनें (अंग्रेजी अनुमत नहीं है)";
+        return "कृपया हिंदी सुझाव में से चुनें";
       }
       if (!isValidHindi(strValue)) {
         return "कृपया केवल हिंदी भाषा का प्रयोग करें";
