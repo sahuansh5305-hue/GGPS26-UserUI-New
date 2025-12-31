@@ -6,7 +6,7 @@
 
 if (window.location.hostname === 'www.dewasps26.gautamsetu.com') {
   window.location.replace(
-    'https://www.dewasps26.gautamsetu.com' +
+    'https://dewasps26.gautamsetu.com' +
     window.location.pathname +
     window.location.search
   );
