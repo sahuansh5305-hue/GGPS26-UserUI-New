@@ -167,7 +167,39 @@ const RegistrationForm = () => {
     photo: null,
   });
 
-  // Add these two lines for temporary UI state
+  const FIELD_LABELS: { [key: string]: string } = {
+  candidateName: "प्रत्याशी का नाम",
+  fatherName: "पिता का नाम",
+  motherName: "माता का नाम",
+  birthDate: "जन्म दिनांक",
+  birthTime: "जन्म समय",
+  birthPlace: "जन्म स्थान",
+  parichay: "परिचय",
+  nakshatra: "नक्षत्र",
+  charan: "चरण",
+  rashi: "राशि",
+  nadi: "नाड़ी",
+  manglik: "मांगलिक",
+  patrikaRequired: "पत्रिका मिलान आवश्यक है?",
+  height: "ऊँचाई",
+  complexion: "रंग",
+  weight: "वजन (किलोग्राम)",
+  gotra: "गोत्र (स्वयं)",
+  nanihal: "गोत्र (ननिहाल)",
+  education: "शैक्षणिक योग्यता",
+  occupation: "व्यवसाय",
+  monthlyIncome: "मासिक आय",
+  fatherOccupation: "पिता का व्यवसाय",
+  fatherIncome: "पिता की मासिक आय",
+  fullAddress: "पूर्ण पता",
+  district: "जिला",
+  tehsil: "तहसील",
+  candidateMobile: "प्रत्याशी का मोबाइल नंबर",
+  guardianMobileNumbers: "अभिभावक मोबाइल नंबर",
+  photo: "प्रत्याशी की फोटो",
+};
+
+// for temporary UI state
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInch, setHeightInch] = useState("");
 
@@ -192,6 +224,9 @@ const RegistrationForm = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+const [showValidationModal, setShowValidationModal] = useState(false); // ✅ Add this
+const [validationErrors, setValidationErrors] = useState<string[]>([]); // ✅ Add this
 
   // Check if text contains English characters
   const containsEnglish = (text: string): boolean => {
@@ -278,7 +313,7 @@ const RegistrationForm = () => {
   };
 
 const handleChange = async (
-  e: ChangeEvent<HTMLInputElement | HTMLTextArrayElement>
+  e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 ) => {
   const { name, value } = e.target;
 
@@ -486,117 +521,128 @@ const handleChange = async (
     return undefined;
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+ const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
 
-    if (!validateForm()) return;
+  if (!validateForm()) {
+    // ✅ Collect all error messages with Hindi field names
+    const errorMessages: string[] = [];
+    
+    Object.entries(errors).forEach(([field, error]) => {
+      if (error) {
+        const fieldLabel = FIELD_LABELS[field] || field;
+        errorMessages.push(`${fieldLabel}: ${error}`);
+      }
+    });
 
-    setIsSubmitting(true);
+    setValidationErrors(errorMessages);
+    setShowValidationModal(true);
+    return;
+  }
 
-    try {
-      const payload = new FormData();
+  setIsSubmitting(true);
 
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === "guardianMobileNumbers") {
-          payload.append(key, JSON.stringify(value));
-        } else if (key === "photo" && value instanceof File) {
-          payload.append("photo", value);
-        } else if (typeof value === "string") {
-          payload.append(key, value);
-        }
-      });
+  try {
+    const payload = new FormData();
 
-      payload.append("height_feet", heightFeet);
-      payload.append("height_inch", heightInch);
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "guardianMobileNumbers") {
+        payload.append(key, JSON.stringify(value));
+      } else if (key === "photo" && value instanceof File) {
+        payload.append("photo", value);
+      } else if (typeof value === "string") {
+        payload.append(key, value);
+      }
+    });
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/matrimonial`,{
-      // const res = await fetch(`http://localhost:3000/api/matrimonial`, {
+    payload.append("height_feet", heightFeet);
+    payload.append("height_inch", heightInch);
+
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/matrimonial`,
+      // `http://localhost:3000/api/matrimonial`, 
+      {
         method: "POST",
         body: payload,
-      });
-
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        throw new Error("Server response invalid");
       }
+    );
 
-      if (!res.ok) {
-        throw new Error(data?.message || "Submission failed");
-      }
-
-      // ✅ SUCCESS → RESET FORM
-      setFormData({
-        candidateName: "",
-        fatherName: "",
-        motherName: "",
-        birthDate: "",
-        birthTime: "",
-        birthPlace: "",
-        otherDetails: "",
-        parichay: "",
-        nakshatra: "",
-        charan: "",
-        rashi: "",
-        nadi: "",
-        manglik: "",
-        patrikaRequired: "",
-        height: "",
-        complexion: "",
-        weight: "",
-        gotra: "",
-        nanihal: "",
-        education: "",
-        occupation: "",
-        monthlyIncome: "",
-        fatherOccupation: "",
-        fatherIncome: "",
-        fullAddress: "",
-        tehsil: "",
-        district: "",
-        candidateMobile: "",
-        guardianMobileNumbers: [""],
-        photo: null,
-      });
-
-      setHeightFeet("");
-      setHeightInch("");
-      setPincode("");
-      setErrors({});
-
-      // ✅ ADD THESE LINES - Reset all image-related states
-      setImageSrc(null);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setCroppedAreaPixels(null);
-      setShowCropModal(false);
-
-      // ✅ RESET FILE INPUT
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
-      setShowSuccessModal(true);
-      setTimeout(() => {
-        setShowSuccessModal(false);
-      }, 20000);
-
-      // toast({
-      //   title: "सफल",
-      //   description: "आपकी प्रविष्टि सफलता पूर्वक प्राप्त हो गई है धन्यवाद!",
-      // });
-    } catch (err: any) {
-      toast({
-        title: "त्रुटि",
-        description: err.message || "डेटा सेव नहीं हुआ",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error("Server response invalid");
     }
-  };
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Submission failed");
+    }
+
+    // ✅ SUCCESS → RESET FORM
+    setFormData({
+      candidateName: "",
+      fatherName: "",
+      motherName: "",
+      birthDate: "",
+      birthTime: "",
+      birthPlace: "",
+      otherDetails: "",
+      parichay: "",
+      nakshatra: "",
+      charan: "",
+      rashi: "",
+      nadi: "",
+      manglik: "",
+      patrikaRequired: "",
+      height: "",
+      complexion: "",
+      weight: "",
+      gotra: "",
+      nanihal: "",
+      education: "",
+      occupation: "",
+      monthlyIncome: "",
+      fatherOccupation: "",
+      fatherIncome: "",
+      fullAddress: "",
+      tehsil: "",
+      district: "",
+      candidateMobile: "",
+      guardianMobileNumbers: [""],
+      photo: null,
+    });
+
+    setHeightFeet("");
+    setHeightInch("");
+    setPincode("");
+    setErrors({});
+    setImageSrc(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+    setShowCropModal(false);
+    setIsOtherOccupation(false); // ✅ Reset occupation mode
+    setIsOtherFatherOccupation(false); // ✅ Reset father occupation mode
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    setShowSuccessModal(true);
+    setTimeout(() => {
+      setShowSuccessModal(false);
+    }, 5000);
+
+  } catch (err: any) {
+    toast({
+      title: "त्रुटि",
+      description: err.message || "डेटा सेव नहीं हुआ",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   // const fetchAddressFromPincode = async (pin: string) => {
   //   if (pin.length !== 6) return;
@@ -836,24 +882,22 @@ const handleChange = async (
     }
   };
 
- const HindiSuggestionBox = ({ field }: { field: string }) => {
+const HindiSuggestionBox = ({ field }: { field: string }) => {
   if (activeField !== field || hindiSuggestions.length === 0) return null;
 
   return (
-    <div className="relative">
-      {/* ✅ Add instruction text */}
-      <p className="text-xs text-maroon bg-yellow-50 px-2 py-1 border-b">
+    <div className="absolute left-0 right-0 top-full mt-1 z-50">
+      <p className="text-xs text-maroon bg-yellow-50 px-2 py-1 border-b rounded-t">
         नीचे से हिंदी विकल्प चुनें
       </p>
       
-      <ul className="absolute z-50 w-full bg-white border rounded shadow max-h-40 overflow-auto">
+      <ul className="bg-white border rounded-b shadow-lg max-h-40 overflow-auto">
         {hindiSuggestions.map((item, index) => (
           <li
             key={index}
             onClick={() => {
               setFormData((prev) => ({ ...prev, [field]: item }));
               setHindiSuggestions([]);
-              // ✅ Clear error when user selects
               setErrors((prev) => ({ ...prev, [field]: undefined }));
             }}
             className="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b last:border-b-0"
@@ -1114,6 +1158,66 @@ const handleChange = async (
   </div>,
   document.body
 )}
+
+{/* Validation Error Modal */}
+{showValidationModal &&
+  createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl p-8 max-w-2xl mx-4 shadow-2xl animate-in zoom-in duration-300 max-h-[80vh] overflow-y-auto">
+        <div className="space-y-4">
+          {/* Error Icon */}
+          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-8 h-8 text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+
+          {/* Title */}
+          <h3 className="text-2xl font-bold text-red-600 text-center">
+            कृपया सभी आवश्यक जानकारी भरें
+          </h3>
+
+          {/* Error List */}
+          <div className="bg-red-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+            <ul className="space-y-2">
+              {validationErrors.map((error, index) => (
+                <li
+                  key={index}
+                  className="flex items-start gap-2 text-sm text-gray-700"
+                >
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>{error}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Close Button */}
+          <Button
+            onClick={() => {
+              setShowValidationModal(false);
+              setValidationErrors([]);
+            }}
+            className="w-full mt-4"
+            variant="destructive"
+          >
+            बंद करें
+          </Button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )}
 
         {/* Section: जन्म विवरण */}
         <div className="space-y-4 p-6 bg-cream/30 rounded-xl border border-gold/20">
