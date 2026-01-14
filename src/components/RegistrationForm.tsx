@@ -2070,10 +2070,11 @@ const formatTime = (time) => {
                 </div>
 
                 {/* Content - Scrollable */}
-                <div className="p-6 overflow-y-auto max-h-[calc(90vh-220px)]">
+                <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-160px)] pb-28 sm:pb-32">
+
                   <div className="space-y-6">
                     {/* Photo & Basic Info */}
-                    <div className="flex flex-col md:flex-row gap-6 p-6 bg-cream/30 rounded-xl border border-gold/20">
+                    <div className="flex flex-col-reverse md:flex-row gap-6 p-6 bg-cream/30 rounded-xl border border-gold/20">
                       
                       <div className="flex-1 space-y-3">
                         <h3 className="text-xl font-bold text-maroon border-b pb-2">
@@ -2215,26 +2216,40 @@ const formatTime = (time) => {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 bg-gray-50 border-t flex gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowPreviewModal(false)}
-                    className="flex-1 flex items-center justify-center gap-2"
-                  >
-                    <Edit className="w-4 h-4" />
-                    एडिट करें
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleFinalSubmit}
-                    variant="saffron"
-                    className="flex-1 flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    पुष्टि करें और सबमिट करें
-                  </Button>
-                </div>
+                {/* Footer Actions */}
+{/* Footer Actions */}
+<div className="
+  sticky bottom-0 z-20
+  bg-gray-50 border-t
+  p-4 sm:p-6
+  flex flex-col sm:flex-row
+  gap-3 sm:gap-4
+  safe-bottom
+">
+  
+  <Button
+    type="button"
+    variant="outline"
+    onClick={() => setShowPreviewModal(false)}
+    className="w-full sm:flex-1 flex items-center justify-center gap-2 text-base"
+  >
+    <Edit className="w-4 h-4" />
+    एडिट करें
+  </Button>
+
+  <Button
+    type="button"
+    onClick={handleFinalSubmit}
+    variant="saffron"
+    className="w-full sm:flex-1 flex items-center justify-center gap-2 text-base"
+  >
+    <CheckCircle className="w-4 h-4" />
+    पुष्टि करें और सबमिट करें
+  </Button>
+
+</div>
+
+
               </div>
             </div>,
             document.body
