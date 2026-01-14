@@ -35,6 +35,9 @@ import {
   Plus,
   X,
   Star,
+  Edit,
+  CheckCircle,
+  Eye
 } from "lucide-react";
 
 // Dropdown options
@@ -222,6 +225,7 @@ const RegistrationForm = () => {
   const [isOtherFatherOccupation, setIsOtherFatherOccupation] = useState(false);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -521,6 +525,23 @@ const RegistrationForm = () => {
     return undefined;
   };
 
+  const formatDate = (date) => {
+  if (!date) return "";
+  const [year, month, day] = date.split("-");
+  return `${day}-${month}-${year}`;
+};
+
+const formatTime = (time) => {
+  if (!time) return "";
+  const [hour, minute] = time.split(":");
+  const h = Number(hour);
+
+  const formattedHour = h % 12 || 12;
+  const period = h >= 12 ? "PM" : "AM";
+
+  return `${formattedHour}:${minute} ${period}`;
+};
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -540,6 +561,13 @@ const RegistrationForm = () => {
       return;
     }
 
+    // ✅ Show preview instead of submitting immediately
+    setShowPreviewModal(true);
+  };
+
+  // ✅ NEW: Function to handle final submission after preview confirmation
+  const handleFinalSubmit = async () => {
+    setShowPreviewModal(false);
     setIsSubmitting(true);
 
     try {
@@ -558,7 +586,6 @@ const RegistrationForm = () => {
       payload.append("height_feet", heightFeet);
       payload.append("height_inch", heightInch);
 
-      // ✅ Add better error handling
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/matrimonial`,
         {
@@ -566,14 +593,12 @@ const RegistrationForm = () => {
           body: payload,
         }
       ).catch((error) => {
-        // Network error (CORS, no internet, server down)
         console.error("Network error:", error);
         throw new Error(
           "सर्वर से कनेक्ट नहीं हो पा रहा है। कृपया अपना इंटरनेट कनेक्शन जांचें।"
         );
       });
 
-      // Check if response is ok before parsing JSON
       if (!res.ok) {
         let errorMessage = "फॉर्म सबमिट करने में त्रुटि";
 
@@ -581,14 +606,12 @@ const RegistrationForm = () => {
           const data = await res.json();
           errorMessage = data?.message || errorMessage;
         } catch {
-          // If JSON parsing fails, use default message
           errorMessage = `सर्वर त्रुटि (${res.status})`;
         }
 
         throw new Error(errorMessage);
       }
 
-      // Parse successful response
       let data;
       try {
         data = await res.json();
@@ -770,10 +793,8 @@ const RegistrationForm = () => {
     setImageSrc(null); // ✅ Clear the image source too
   };
 
-  // 🔤 Google Hindi Transliteration Helper
-  // 🔤 Google Hindi Transliteration Helper
-  // 🔤 Google Hindi Transliteration Helper
-  // 🔤 Google Hindi Transliteration Helper (for suggestions as user types)
+
+  // Make Google Hindi Transliteration Helper (for suggestions as user types)
   const fetchHindiSuggestions = async (text: string): Promise<string[]> => {
     if (!text.trim()) return [];
 
@@ -923,6 +944,16 @@ const RegistrationForm = () => {
             </li>
           ))}
         </ul>
+      </div>
+    );
+  };
+
+    const PreviewInfoRow = ({ label, value }: { label: string; value: string }) => {
+    if (!value) return null;
+    return (
+      <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+        <div className="text-sm font-medium text-gray-600">{label}</div>
+        <div className="col-span-2 text-sm text-gray-900">{value}</div>
       </div>
     );
   };
@@ -1836,7 +1867,7 @@ const RegistrationForm = () => {
                   // split by spaces & filter empty
                   const words = value.trim().split(/\s+/).filter(Boolean);
 
-                  if (words.length <= 50) {
+                  if (words.length <= 100) {
                     handleChange(e);
                   }
                 }}
@@ -2012,6 +2043,202 @@ const RegistrationForm = () => {
           <span className="text-destructive">*</span> चिह्नित सभी जानकारी
           अनिवार्य है
         </p>
+
+        {showPreviewModal &&
+          createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white rounded-2xl w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-maroon to-red-800 p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Eye className="w-7 h-7" />
+                      <h2 className="text-2xl font-bold">प्रविष्टि पूर्वावलोकन</h2>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowPreviewModal(false)}
+                      className="text-white hover:bg-white/20"
+                    >
+                      <X className="w-6 h-6" />
+                    </Button>
+                  </div>
+                  <p className="mt-2 text-sm text-white/90">
+                    कृपया अपनी जानकारी की जांच करें और सबमिट करने से पहले पुष्टि करें
+                  </p>
+                </div>
+
+                {/* Content - Scrollable */}
+                <div className="p-6 overflow-y-auto max-h-[calc(90vh-220px)]">
+                  <div className="space-y-6">
+                    {/* Photo & Basic Info */}
+                    <div className="flex flex-col md:flex-row gap-6 p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      
+                      <div className="flex-1 space-y-3">
+                        <h3 className="text-xl font-bold text-maroon border-b pb-2">
+                          व्यक्तिगत विवरण
+                        </h3>
+                        <PreviewInfoRow label="परिचय" value={formData.parichay} />
+                        <PreviewInfoRow label="नाम" value={formData.candidateName} />
+                        <PreviewInfoRow label="पिता का नाम" value={formData.fatherName} />
+                        <PreviewInfoRow label="माता का नाम" value={formData.motherName} />
+                      </div>
+
+                      {formData.photo && (
+                        <div className="flex-shrink-0">
+                          <img
+                            src={URL.createObjectURL(formData.photo)}
+                            alt="प्रत्याशी"
+                            className="w-40 h-40 rounded-xl object-cover border-2 border-maroon shadow-lg"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Birth Details */}
+                    <div className="p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      <h3 className="text-xl font-bold text-maroon border-b pb-2 mb-3 flex items-center gap-2">
+                        <Calendar className="w-5 h-5" />
+                        जन्म विवरण
+                      </h3>
+                      <div className="space-y-2">
+                        <PreviewInfoRow label="जन्म दिनांक" value={formatDate(formData.birthDate)} />
+                        <PreviewInfoRow label="जन्म समय" value={formatTime(formData.birthTime)} />
+                        <PreviewInfoRow label="जन्म स्थान" value={formData.birthPlace} />
+                      </div>
+                    </div>
+
+                    {/* Kundali Details */}
+                    <div className="p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      <h3 className="text-xl font-bold text-maroon border-b pb-2 mb-3 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5" />
+                        कुंडली विवरण
+                      </h3>
+                      <div className="grid md:grid-cols-2 gap-x-6 gap-y-2">
+                        <PreviewInfoRow label="नक्षत्र" value={formData.nakshatra}/>
+                        <PreviewInfoRow label="चरण" value={formData.charan} />
+                        <PreviewInfoRow label="राशि" value={formData.rashi} />
+                        <PreviewInfoRow label="नाड़ी" value={formData.nadi} />
+                        <PreviewInfoRow label="मांगलिक" value={formData.manglik} />
+                        <PreviewInfoRow label="पत्रिका मिलान" value={formData.patrikaRequired} />
+                      </div>
+                    </div>
+
+                    {/* Physical Details */}
+                    <div className="p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      <h3 className="text-xl font-bold text-maroon border-b pb-2 mb-3 flex items-center gap-2">
+                        <Ruler className="w-5 h-5" />
+                        शारीरिक विवरण
+                      </h3>
+                      <div className="grid md:grid-cols-3 gap-x-6 gap-y-2">
+                        <PreviewInfoRow label="ऊँचाई" value={formData.height} />
+                        <PreviewInfoRow label="रंग" value={formData.complexion} />
+                        <PreviewInfoRow label="वजन" value={formData.weight ? `${formData.weight} किलो` : ""} />
+                      </div>
+                    </div>
+
+                    {/* Gotra */}
+                    <div className="p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      <h3 className="text-xl font-bold text-maroon border-b pb-2 mb-3 flex items-center gap-2">
+                        <Users className="w-5 h-5" />
+                        गोत्र विवरण
+                      </h3>
+                      <div className="grid md:grid-cols-2 gap-x-6 gap-y-2">
+                        <PreviewInfoRow label="स्वयं" value={formData.gotra} />
+                        <PreviewInfoRow label="ननिहाल" value={formData.nanihal} />
+                      </div>
+                    </div>
+
+                    {/* Education & Occupation */}
+                    <div className="p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      <h3 className="text-xl font-bold text-maroon border-b pb-2 mb-3 flex items-center gap-2">
+                        <GraduationCap className="w-5 h-5" />
+                        शिक्षा एवं व्यवसाय
+                      </h3>
+                      <div className="space-y-2">
+                        <PreviewInfoRow label="शैक्षणिक योग्यता" value={formData.education} />
+                        <PreviewInfoRow label="व्यवसाय" value={formData.occupation} />
+                        <PreviewInfoRow label="मासिक आय" value={formData.monthlyIncome ? `₹${formData.monthlyIncome}` : ""} />
+                      </div>
+                    </div>
+
+                    {/* Father's Details */}
+                    <div className="p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      <h3 className="text-xl font-bold text-maroon border-b pb-2 mb-3 flex items-center gap-2">
+                        <Users className="w-5 h-5" />
+                        पिता का विवरण
+                      </h3>
+                      <div className="space-y-2">
+                        <PreviewInfoRow label="व्यवसाय" value={formData.fatherOccupation} />
+                        <PreviewInfoRow label="मासिक आय" value={formData.fatherIncome ? `₹${formData.fatherIncome}` : ""} />
+                      </div>
+                    </div>
+
+                    {/* Address */}
+                    <div className="p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      <h3 className="text-xl font-bold text-maroon border-b pb-2 mb-3 flex items-center gap-2">
+                        <Home className="w-5 h-5" />
+                        पता विवरण
+                      </h3>
+                      <div className="space-y-2">
+                        <div className="flex">
+                          <PreviewInfoRow label="पूर्ण पता" value={formData.fullAddress} />
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-x-6 gap-y-2">
+                          <PreviewInfoRow label="तहसील" value={formData.tehsil} />
+                          <PreviewInfoRow label="जिला" value={formData.district} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contact Details */}
+                    <div className="p-6 bg-cream/30 rounded-xl border border-gold/20">
+                      <h3 className="text-xl font-bold text-maroon border-b pb-2 mb-3 flex items-center gap-2">
+                        <Phone className="w-5 h-5" />
+                        संपर्क विवरण
+                      </h3>
+                      <div className="space-y-2">
+                        <PreviewInfoRow 
+                          label="प्रत्याशी मोबाइल" 
+                          value={formData.candidateMobile || "---"} 
+                        />
+                        <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
+                          <div className="text-sm font-medium text-gray-600">अभिभावक मोबाइल</div>
+                          <div className="col-span-2 text-sm text-gray-900">
+                            {formData.guardianMobileNumbers.filter(n => n.trim()).join(", ")}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="p-6 bg-gray-50 border-t flex gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowPreviewModal(false)}
+                    className="flex-1 flex items-center justify-center gap-2"
+                  >
+                    <Edit className="w-4 h-4" />
+                    एडिट करें
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleFinalSubmit}
+                    variant="saffron"
+                    className="flex-1 flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    पुष्टि करें और सबमिट करें
+                  </Button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
       </form>
       {/* DISABLED OVERLAY */}
       {/* <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center rounded-xl">
