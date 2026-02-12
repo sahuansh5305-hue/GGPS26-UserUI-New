@@ -333,7 +333,7 @@ const RegistrationForm = () => {
           [name]: "कृपया नीचे दिए गए हिंदी सुझाव में से चुनें",
         }));
 
-        // Fetch suggestions
+        // Fetch suggestion
         const suggestions = await fetchHindiSuggestions(value);
         setHindiSuggestions(suggestions);
         return;
