@@ -363,7 +363,6 @@ const RegistrationForm = () => {
     "otherDetails",
     "gotra",
     "nanihal",
-    "education",
     "occupation",
     "fatherOccupation",
     "fullAddress",
@@ -1616,7 +1615,7 @@ const formatTime = (time) => {
                     onChange={handleChange}
                     placeholder="स्नातक"
                   />
-                  <HindiSuggestionBox field="education" />
+                  {/* <HindiSuggestionBox field="education" /> */}
                 </div>
               </div>
             </FormField>
