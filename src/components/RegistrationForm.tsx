@@ -37,7 +37,7 @@ import {
   Star,
   Edit,
   CheckCircle,
-  Eye
+  Eye,
 } from "lucide-react";
 
 // Dropdown options
@@ -249,9 +249,15 @@ const RegistrationForm = () => {
     return /^[0-9]{10}$/.test(number.trim());
   };
 
+  const isValidEducation = (text: string): boolean => {
+    if (!text.trim()) return true;
+    // Allow Hindi characters, English letters, spaces, comma, dot, hyphen, parentheses
+    return /^[\u0900-\u097Fa-zA-Z\s\.\,\-\(\)]+$/.test(text);
+  };
+
   const validateField = (
     name: string,
-    value: string | string[]
+    value: string | string[],
   ): string | undefined => {
     // Handle guardian mobile numbers array
     if (name === "guardianMobileNumbers") {
@@ -303,6 +309,12 @@ const RegistrationForm = () => {
       // }
     }
 
+    if (name === "education") {
+      if (!isValidEducation(strValue)) {
+        return "शैक्षणिक योग्यता में केवल अक्षर स्वीकार्य हैं";
+      }
+    }
+
     // ✅ For Hindi text fields, MUST be in Hindi
     if (HINDI_TEXT_FIELDS.includes(name)) {
       if (containsEnglish(strValue)) {
@@ -317,7 +329,7 @@ const RegistrationForm = () => {
   };
 
   const handleChange = async (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -333,7 +345,7 @@ const RegistrationForm = () => {
           [name]: "कृपया नीचे दिए गए हिंदी सुझाव में से चुनें",
         }));
 
-        // Fetch suggestion
+        // Fetch suggestions
         const suggestions = await fetchHindiSuggestions(value);
         setHindiSuggestions(suggestions);
         return;
@@ -404,7 +416,7 @@ const RegistrationForm = () => {
   const removeGuardianMobileNumber = (index: number) => {
     if (formData.guardianMobileNumbers.length > 1) {
       const newNumbers = formData.guardianMobileNumbers.filter(
-        (_, i) => i !== index
+        (_, i) => i !== index,
       );
       setFormData((prev) => ({ ...prev, guardianMobileNumbers: newNumbers }));
     }
@@ -420,10 +432,10 @@ const RegistrationForm = () => {
         value && heightInch
           ? `${value}'${heightInch}"`
           : value
-          ? `${value}'`
-          : heightInch
-          ? `0'${heightInch}"`
-          : "";
+            ? `${value}'`
+            : heightInch
+              ? `0'${heightInch}"`
+              : "";
       setFormData((prev) => ({ ...prev, height: combined }));
     } else {
       setHeightInch(value);
@@ -432,10 +444,10 @@ const RegistrationForm = () => {
         heightFeet && value
           ? `${heightFeet}'${value}"`
           : heightFeet
-          ? `${heightFeet}'`
-          : value
-          ? `0'${value}"`
-          : "";
+            ? `${heightFeet}'`
+            : value
+              ? `0'${value}"`
+              : "";
       setFormData((prev) => ({ ...prev, height: combined }));
     }
 
@@ -470,7 +482,7 @@ const RegistrationForm = () => {
     requiredFields.forEach((key) => {
       const error = validateField(
         key,
-        formData[key as keyof FormData] as string
+        formData[key as keyof FormData] as string,
       );
       if (error) {
         newErrors[key] = error;
@@ -489,7 +501,7 @@ const RegistrationForm = () => {
     // Validate guardian mobile numbers
     const guardianMobileError = validateField(
       "guardianMobileNumbers",
-      formData.guardianMobileNumbers
+      formData.guardianMobileNumbers,
     );
     if (guardianMobileError) {
       newErrors.guardianMobileNumbers = guardianMobileError;
@@ -498,7 +510,7 @@ const RegistrationForm = () => {
     // Validate candidate mobile (optional, but check format if provided)
     const candidateMobileError = validateField(
       "candidateMobile",
-      formData.candidateMobile
+      formData.candidateMobile,
     );
     if (candidateMobileError) {
       newErrors.candidateMobile = candidateMobileError;
@@ -525,21 +537,21 @@ const RegistrationForm = () => {
   };
 
   const formatDate = (date) => {
-  if (!date) return "";
-  const [year, month, day] = date.split("-");
-  return `${day}-${month}-${year}`;
-};
+    if (!date) return "";
+    const [year, month, day] = date.split("-");
+    return `${day}-${month}-${year}`;
+  };
 
-const formatTime = (time) => {
-  if (!time) return "";
-  const [hour, minute] = time.split(":");
-  const h = Number(hour);
+  const formatTime = (time) => {
+    if (!time) return "";
+    const [hour, minute] = time.split(":");
+    const h = Number(hour);
 
-  const formattedHour = h % 12 || 12;
-  const period = h >= 12 ? "PM" : "AM";
+    const formattedHour = h % 12 || 12;
+    const period = h >= 12 ? "PM" : "AM";
 
-  return `${formattedHour}:${minute} ${period}`;
-};
+    return `${formattedHour}:${minute} ${period}`;
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -590,11 +602,11 @@ const formatTime = (time) => {
         {
           method: "POST",
           body: payload,
-        }
+        },
       ).catch((error) => {
         console.error("Network error:", error);
         throw new Error(
-          "सर्वर से कनेक्ट नहीं हो पा रहा है। कृपया अपना इंटरनेट कनेक्शन जांचें।"
+          "सर्वर से कनेक्ट नहीं हो पा रहा है। कृपया अपना इंटरनेट कनेक्शन जांचें।",
         );
       });
 
@@ -742,7 +754,7 @@ const formatTime = (time) => {
       0,
       0,
       crop.width,
-      crop.height
+      crop.height,
     );
 
     return new Promise((resolve) => {
@@ -792,7 +804,6 @@ const formatTime = (time) => {
     setImageSrc(null); // ✅ Clear the image source too
   };
 
-
   // Make Google Hindi Transliteration Helper (for suggestions as user types)
   const fetchHindiSuggestions = async (text: string): Promise<string[]> => {
     if (!text.trim()) return [];
@@ -810,8 +821,8 @@ const formatTime = (time) => {
       if (parts.length === 1) {
         const res = await fetch(
           `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(
-            text
-          )}`
+            text,
+          )}`,
         );
         const data = await res.json();
 
@@ -825,8 +836,8 @@ const formatTime = (time) => {
         for (const part of parts) {
           const res = await fetch(
             `https://inputtools.google.com/request?itc=hi-t-i0-und&num=5&text=${encodeURIComponent(
-              part
-            )}`
+              part,
+            )}`,
           );
           const data = await res.json();
 
@@ -840,7 +851,7 @@ const formatTime = (time) => {
         // Combine all parts with commas
         const combined: string[] = [];
         const maxSuggestions = Math.max(
-          ...transliteratedParts.map((p) => p.length)
+          ...transliteratedParts.map((p) => p.length),
         );
 
         for (let i = 0; i < Math.min(maxSuggestions, 5); i++) {
@@ -866,8 +877,8 @@ const formatTime = (time) => {
     try {
       const res = await fetch(
         `https://inputtools.google.com/request?itc=hi-t-i0-und&num=1&text=${encodeURIComponent(
-          text
-        )}`
+          text,
+        )}`,
       );
       const data = await res.json();
 
@@ -947,7 +958,13 @@ const formatTime = (time) => {
     );
   };
 
-    const PreviewInfoRow = ({ label, value }: { label: string; value: string }) => {
+  const PreviewInfoRow = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string;
+  }) => {
     if (!value) return null;
     return (
       <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
@@ -1111,7 +1128,7 @@ const formatTime = (time) => {
                 </div>
               </div>
             </div>,
-            document.body
+            document.body,
           )}
 
         {/* Success Modal - Now using Portal */}
@@ -1156,7 +1173,7 @@ const formatTime = (time) => {
                 </div>
               </div>
             </div>,
-            document.body
+            document.body,
           )}
 
         {/* Crop Modal - Now using Portal */}
@@ -1203,7 +1220,7 @@ const formatTime = (time) => {
                 </div>
               </div>
             </div>,
-            document.body
+            document.body,
           )}
 
         {/* Validation Error Modal */}
@@ -1263,7 +1280,7 @@ const formatTime = (time) => {
                 </div>
               </div>
             </div>,
-            document.body
+            document.body,
           )}
 
         {/* Section: जन्म विवरण */}
@@ -1608,15 +1625,67 @@ const formatTime = (time) => {
             >
               <div className="relative">
                 <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <div className="relative">
-                  <Input
-                    name="education"
-                    value={formData.education}
-                    onChange={handleChange}
-                    placeholder="स्नातक"
-                  />
-                  {/* <HindiSuggestionBox field="education" /> */}
-                </div>
+                <Input
+                  name="education"
+                  value={formData.education}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Block numbers and special characters on input
+                    if (
+                      value === "" ||
+                      /^[\u0900-\u097Fa-zA-Z\s\.\,\-\(\)]*$/.test(value)
+                    ) {
+                      handleChange(e);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    // Block number keys and most special characters
+                    const blockedKeys = [
+                      "0",
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "6",
+                      "7",
+                      "8",
+                      "9",
+                      "!",
+                      "@",
+                      "#",
+                      "$",
+                      "%",
+                      "^",
+                      "&",
+                      "*",
+                      "_",
+                      "+",
+                      "=",
+                      "[",
+                      "]",
+                      "{",
+                      "}",
+                      "|",
+                      "\\",
+                      ":",
+                      ";",
+                      '"',
+                      "'",
+                      "<",
+                      ">",
+                      "?",
+                      "/",
+                      "`",
+                      "~",
+                    ];
+                    if (blockedKeys.includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  placeholder="स्नातक, B.Tech, M.A"
+                  className="pl-11"
+                />
               </div>
             </FormField>
 
@@ -2052,7 +2121,9 @@ const formatTime = (time) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Eye className="w-7 h-7" />
-                      <h2 className="text-2xl font-bold">प्रविष्टि पूर्वावलोकन</h2>
+                      <h2 className="text-2xl font-bold">
+                        प्रविष्टि पूर्वावलोकन
+                      </h2>
                     </div>
                     <Button
                       variant="ghost"
@@ -2064,25 +2135,36 @@ const formatTime = (time) => {
                     </Button>
                   </div>
                   <p className="mt-2 text-sm text-white/90">
-                    कृपया अपनी जानकारी की जांच करें और सबमिट करने से पहले पुष्टि करें
+                    कृपया अपनी जानकारी की जांच करें और सबमिट करने से पहले पुष्टि
+                    करें
                   </p>
                 </div>
 
                 {/* Content - Scrollable */}
                 <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-160px)] pb-28 sm:pb-32">
-
                   <div className="space-y-6">
                     {/* Photo & Basic Info */}
                     <div className="flex flex-col-reverse md:flex-row gap-6 p-6 bg-cream/30 rounded-xl border border-gold/20">
-                      
                       <div className="flex-1 space-y-3">
                         <h3 className="text-xl font-bold text-maroon border-b pb-2">
                           व्यक्तिगत विवरण
                         </h3>
-                        <PreviewInfoRow label="परिचय" value={formData.parichay} />
-                        <PreviewInfoRow label="नाम" value={formData.candidateName} />
-                        <PreviewInfoRow label="पिता का नाम" value={formData.fatherName} />
-                        <PreviewInfoRow label="माता का नाम" value={formData.motherName} />
+                        <PreviewInfoRow
+                          label="परिचय"
+                          value={formData.parichay}
+                        />
+                        <PreviewInfoRow
+                          label="नाम"
+                          value={formData.candidateName}
+                        />
+                        <PreviewInfoRow
+                          label="पिता का नाम"
+                          value={formData.fatherName}
+                        />
+                        <PreviewInfoRow
+                          label="माता का नाम"
+                          value={formData.motherName}
+                        />
                       </div>
 
                       {formData.photo && (
@@ -2103,9 +2185,18 @@ const formatTime = (time) => {
                         जन्म विवरण
                       </h3>
                       <div className="space-y-2">
-                        <PreviewInfoRow label="जन्म दिनांक" value={formatDate(formData.birthDate)} />
-                        <PreviewInfoRow label="जन्म समय" value={formatTime(formData.birthTime)} />
-                        <PreviewInfoRow label="जन्म स्थान" value={formData.birthPlace} />
+                        <PreviewInfoRow
+                          label="जन्म दिनांक"
+                          value={formatDate(formData.birthDate)}
+                        />
+                        <PreviewInfoRow
+                          label="जन्म समय"
+                          value={formatTime(formData.birthTime)}
+                        />
+                        <PreviewInfoRow
+                          label="जन्म स्थान"
+                          value={formData.birthPlace}
+                        />
                       </div>
                     </div>
 
@@ -2116,12 +2207,21 @@ const formatTime = (time) => {
                         कुंडली विवरण
                       </h3>
                       <div className="grid md:grid-cols-2 gap-x-6 gap-y-2">
-                        <PreviewInfoRow label="नक्षत्र" value={formData.nakshatra}/>
+                        <PreviewInfoRow
+                          label="नक्षत्र"
+                          value={formData.nakshatra}
+                        />
                         <PreviewInfoRow label="चरण" value={formData.charan} />
                         <PreviewInfoRow label="राशि" value={formData.rashi} />
                         <PreviewInfoRow label="नाड़ी" value={formData.nadi} />
-                        <PreviewInfoRow label="मांगलिक" value={formData.manglik} />
-                        <PreviewInfoRow label="पत्रिका मिलान" value={formData.patrikaRequired} />
+                        <PreviewInfoRow
+                          label="मांगलिक"
+                          value={formData.manglik}
+                        />
+                        <PreviewInfoRow
+                          label="पत्रिका मिलान"
+                          value={formData.patrikaRequired}
+                        />
                       </div>
                     </div>
 
@@ -2133,8 +2233,16 @@ const formatTime = (time) => {
                       </h3>
                       <div className="grid md:grid-cols-3 gap-x-6 gap-y-2">
                         <PreviewInfoRow label="ऊँचाई" value={formData.height} />
-                        <PreviewInfoRow label="रंग" value={formData.complexion} />
-                        <PreviewInfoRow label="वजन" value={formData.weight ? `${formData.weight} किलो` : ""} />
+                        <PreviewInfoRow
+                          label="रंग"
+                          value={formData.complexion}
+                        />
+                        <PreviewInfoRow
+                          label="वजन"
+                          value={
+                            formData.weight ? `${formData.weight} किलो` : ""
+                          }
+                        />
                       </div>
                     </div>
 
@@ -2146,7 +2254,10 @@ const formatTime = (time) => {
                       </h3>
                       <div className="grid md:grid-cols-2 gap-x-6 gap-y-2">
                         <PreviewInfoRow label="स्वयं" value={formData.gotra} />
-                        <PreviewInfoRow label="ननिहाल" value={formData.nanihal} />
+                        <PreviewInfoRow
+                          label="ननिहाल"
+                          value={formData.nanihal}
+                        />
                       </div>
                     </div>
 
@@ -2157,9 +2268,22 @@ const formatTime = (time) => {
                         शिक्षा एवं व्यवसाय
                       </h3>
                       <div className="space-y-2">
-                        <PreviewInfoRow label="शैक्षणिक योग्यता" value={formData.education} />
-                        <PreviewInfoRow label="व्यवसाय" value={formData.occupation} />
-                        <PreviewInfoRow label="मासिक आय" value={formData.monthlyIncome ? `₹${formData.monthlyIncome}` : ""} />
+                        <PreviewInfoRow
+                          label="शैक्षणिक योग्यता"
+                          value={formData.education}
+                        />
+                        <PreviewInfoRow
+                          label="व्यवसाय"
+                          value={formData.occupation}
+                        />
+                        <PreviewInfoRow
+                          label="मासिक आय"
+                          value={
+                            formData.monthlyIncome
+                              ? `₹${formData.monthlyIncome}`
+                              : ""
+                          }
+                        />
                       </div>
                     </div>
 
@@ -2170,8 +2294,18 @@ const formatTime = (time) => {
                         पिता का विवरण
                       </h3>
                       <div className="space-y-2">
-                        <PreviewInfoRow label="व्यवसाय" value={formData.fatherOccupation} />
-                        <PreviewInfoRow label="मासिक आय" value={formData.fatherIncome ? `₹${formData.fatherIncome}` : ""} />
+                        <PreviewInfoRow
+                          label="व्यवसाय"
+                          value={formData.fatherOccupation}
+                        />
+                        <PreviewInfoRow
+                          label="मासिक आय"
+                          value={
+                            formData.fatherIncome
+                              ? `₹${formData.fatherIncome}`
+                              : ""
+                          }
+                        />
                       </div>
                     </div>
 
@@ -2183,11 +2317,20 @@ const formatTime = (time) => {
                       </h3>
                       <div className="space-y-2">
                         <div className="flex">
-                          <PreviewInfoRow label="पूर्ण पता" value={formData.fullAddress} />
+                          <PreviewInfoRow
+                            label="पूर्ण पता"
+                            value={formData.fullAddress}
+                          />
                         </div>
                         <div className="grid md:grid-cols-2 gap-x-6 gap-y-2">
-                          <PreviewInfoRow label="तहसील" value={formData.tehsil} />
-                          <PreviewInfoRow label="जिला" value={formData.district} />
+                          <PreviewInfoRow
+                            label="तहसील"
+                            value={formData.tehsil}
+                          />
+                          <PreviewInfoRow
+                            label="जिला"
+                            value={formData.district}
+                          />
                         </div>
                       </div>
                     </div>
@@ -2199,14 +2342,18 @@ const formatTime = (time) => {
                         संपर्क विवरण
                       </h3>
                       <div className="space-y-2">
-                        <PreviewInfoRow 
-                          label="प्रत्याशी मोबाइल" 
-                          value={formData.candidateMobile || "---"} 
+                        <PreviewInfoRow
+                          label="प्रत्याशी मोबाइल"
+                          value={formData.candidateMobile || "---"}
                         />
                         <div className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100">
-                          <div className="text-sm font-medium text-gray-600">अभिभावक मोबाइल</div>
+                          <div className="text-sm font-medium text-gray-600">
+                            अभिभावक मोबाइल
+                          </div>
                           <div className="col-span-2 text-sm text-gray-900">
-                            {formData.guardianMobileNumbers.filter(n => n.trim()).join(", ")}
+                            {formData.guardianMobileNumbers
+                              .filter((n) => n.trim())
+                              .join(", ")}
                           </div>
                         </div>
                       </div>
@@ -2216,42 +2363,40 @@ const formatTime = (time) => {
 
                 {/* Footer Actions */}
                 {/* Footer Actions */}
-{/* Footer Actions */}
-<div className="
+                {/* Footer Actions */}
+                <div
+                  className="
   sticky bottom-0 z-20
   bg-gray-50 border-t
   p-4 sm:p-6
   flex flex-col sm:flex-row
   gap-3 sm:gap-4
   safe-bottom
-">
-  
-  <Button
-    type="button"
-    variant="outline"
-    onClick={() => setShowPreviewModal(false)}
-    className="w-full sm:flex-1 flex items-center justify-center gap-2 text-base"
-  >
-    <Edit className="w-4 h-4" />
-    एडिट करें
-  </Button>
+"
+                >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowPreviewModal(false)}
+                    className="w-full sm:flex-1 flex items-center justify-center gap-2 text-base"
+                  >
+                    <Edit className="w-4 h-4" />
+                    एडिट करें
+                  </Button>
 
-  <Button
-    type="button"
-    onClick={handleFinalSubmit}
-    variant="saffron"
-    className="w-full sm:flex-1 flex items-center justify-center gap-2 text-base"
-  >
-    <CheckCircle className="w-4 h-4" />
-    पुष्टि करें और सबमिट करें
-  </Button>
-
-</div>
-
-
+                  <Button
+                    type="button"
+                    onClick={handleFinalSubmit}
+                    variant="saffron"
+                    className="w-full sm:flex-1 flex items-center justify-center gap-2 text-base"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    पुष्टि करें और सबमिट करें
+                  </Button>
+                </div>
               </div>
             </div>,
-            document.body
+            document.body,
           )}
       </form>
       {/* DISABLED OVERLAY */}
