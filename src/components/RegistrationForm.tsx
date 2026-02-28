@@ -255,6 +255,9 @@ const RegistrationForm = () => {
     return /^[\u0900-\u097Fa-zA-Z\s\.\,\-\(\)]+$/.test(text);
   };
 
+
+  const FORM_ENABLED = false; // flip to true when form ready to open
+
   const validateField = (
     name: string,
     value: string | string[],
@@ -973,6 +976,18 @@ const RegistrationForm = () => {
       </div>
     );
   };
+
+  if (!FORM_ENABLED) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 px-6 bg-cream/30 rounded-xl border border-gold/20 text-center space-y-4">
+      <div className="w-20 h-20 bg-maroon/10 rounded-full flex items-center justify-center">
+        <Clock className="w-10 h-10 text-maroon" />
+      </div>
+      <h2 className="text-3xl font-bold text-maroon">पंजीकरण की समय सीमा समाप्त हो चुकी है !!</h2>
+      <p className="text-sm text-muted-foreground">पंजीकरण की अंतिम तिथि: 28 फरवरी 2026</p>
+    </div>
+  );
+}
 
   return (
     <div className="relative">
@@ -2084,7 +2099,7 @@ const RegistrationForm = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="pt-4">
+        {/* <div className="pt-4">
           <Button
             type="submit"
             variant="saffron"
@@ -2104,7 +2119,7 @@ const RegistrationForm = () => {
               </>
             )}
           </Button>
-        </div>
+        </div> */}
 
         {/* Footer note */}
         <p className="text-center text-sm text-muted-foreground">
@@ -2399,14 +2414,9 @@ const RegistrationForm = () => {
             document.body,
           )}
       </form>
-      {/* DISABLED OVERLAY */}
-      {/* <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center rounded-xl">
-        <div className="text-center absolute top-56">
-          <h2 className="text-3xl font-bold text-white">Coming Soon</h2>
-          <p className="text-white/80 mt-2">यह फॉर्म जल्द ही उपलब्ध होगा</p>
-        </div>
-      </div> */}
     </div>
+
+    
   );
 };
 
