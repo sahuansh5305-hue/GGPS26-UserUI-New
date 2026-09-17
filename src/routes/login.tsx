@@ -7,9 +7,9 @@ import weddingCouple from "@/assets/aangan-wedding-couple.jpg";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "प्रवेश — आँगन" },
-      { name: "description", content: "आँगन में अपने मोबाइल नंबर के साथ सहज प्रवेश करें।" },
-      { property: "og:title", content: "प्रवेश — आँगन" },
+      { title: "प्रवेश — परिचय सेतु" },
+      { name: "description", content: "परिचय सेतु में अपने मोबाइल नंबर के साथ सहज प्रवेश करें।" },
+      { property: "og:title", content: "प्रवेश — परिचय सेतु" },
       { property: "og:description", content: "अपने रिश्तों की नई शुरुआत वहीं से आगे बढ़ाइए।" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -24,7 +24,7 @@ function LoginPage() {
       <GlassFilter />
       <div className="grid min-h-screen lg:grid-cols-[1.08fr_0.92fr]">
         <section className="relative hidden overflow-hidden lg:block">
-          <img src={weddingCouple} alt="सजे आँगन में भारतीय जोड़ा" width={1024} height={1536} className="absolute inset-0 h-full w-full object-cover" />
+          <img src={weddingCouple} alt="परिचय सेतु में भारतीय जोड़ा" width={1024} height={1536} className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-image-wash" />
           <div className="absolute inset-x-0 top-0 z-20 p-10"><AanganBrand light /></div>
           <div className="absolute inset-x-0 bottom-0 z-20 p-10">
@@ -41,7 +41,7 @@ function LoginPage() {
           <div className="absolute left-5 top-6 lg:hidden"><AanganBrand /></div>
           <div className="pointer-events-none absolute right-[-4rem] top-16 size-44 rounded-full border-[28px] border-marigold/15" />
           <div className="w-full max-w-md animate-fade-in">
-            <p className="mb-4 text-sm font-bold text-vermilion">आँगन में प्रवेश</p>
+            <p className="mb-4 text-sm font-bold text-vermilion">परिचय सेतु में प्रवेश</p>
             <h1 className="font-display text-4xl font-semibold leading-tight text-primary sm:text-5xl">वापसी पर स्वागत है</h1>
             <p className="mt-4 text-base leading-7 text-muted-foreground">अपने रिश्तों की नई शुरुआत वहीं से आगे बढ़ाइए।</p>
 
@@ -57,7 +57,7 @@ function LoginPage() {
             </form>
 
             <p className="mt-8 text-center text-sm text-muted-foreground">
-              अभी तक आँगन से नहीं जुड़े?{" "}
+              अभी तक परिचय सेतु से नहीं जुड़े?{" "}
               <Link to="/signup" className="font-bold text-vermilion underline decoration-vermilion/30 underline-offset-4 hover:decoration-vermilion">नया खाता बनाएं</Link>
             </p>
           </div>

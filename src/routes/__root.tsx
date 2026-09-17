@@ -77,9 +77,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "आँगन" },
+      { title: "परिचय सेतु" },
       { name: "description", content: "सच्चे रिश्तों की खूबसूरत शुरुआत।" },
-      { name: "author", content: "आँगन" },
+      { name: "author", content: "परिचय सेतु" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
