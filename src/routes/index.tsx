@@ -188,8 +188,8 @@ function Index() {
                 sm:text-base
                 lg:text-lg
               "
-            >
-              ॥ ॐ तस्मै नमः गुरुगौतमायः ॥
+            >|| श्री गणेशाय नमः || <br></br>
+              ॥ ॐ तस्मै नमः गुरु गौतमायः ॥
             </div>
 
             {/* Organization */}
@@ -334,24 +334,20 @@ function Index() {
           {/* =================================================
               TAGLINE
           ================================================== */}
-          <div
+
+           <p
             className="
-              mb-5
-              flex
-              items-center
-              gap-3
-              text-sm
-              font-medium
-              text-marigold
-              sm:text-base
+              mt-5
+              max-w-xl
+              text-base
+              leading-7
+              text-ivory/80
+              sm:text-lg
             "
           >
-            <span className="h-px w-12 shrink-0 bg-marigold" />
+            श्री गुर्जर गौड़ ब्राह्मण समाज
+          </p>
 
-            <span>
-              परिचय से रिश्तों तक, समाज के साथ हर कदम
-            </span>
-          </div>
 
           {/* =================================================
               MAIN HEADING
@@ -364,6 +360,7 @@ function Index() {
               font-semibold
               leading-[1.1]
               tracking-tight
+              mt-10
               text-ivory
               drop-shadow-xl
               sm:text-5xl
@@ -376,18 +373,26 @@ function Index() {
           {/* =================================================
               DESCRIPTION
           ================================================== */}
-          <p
+          
+          <div
             className="
-              mt-5
-              max-w-xl
-              text-base
-              leading-7
-              text-ivory/80
-              sm:text-lg
+              mb-5
+              flex
+              items-center
+              gap-3
+              text-sm
+              font-medium
+              text-marigold
+              sm:text-base
             "
           >
-            श्री गुर्जर गौड़ ब्राह्मण समाज
-          </p>
+
+            <span className="h-px w-12 shrink-0 bg-marigold" />
+
+            <span>
+              परिचय से रिश्तों तक, समाज के साथ हर कदम
+            </span>
+          </div>
 
           {/* =================================================
               CTA BUTTONS

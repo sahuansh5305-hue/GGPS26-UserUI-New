@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Check, Flower2 } from "lucide-react";
 import { AanganBrand } from "@/components/aangan-brand";
+import gurjarGaudLogo from "@/assets/ChatGPT Image Sep 16, 2026, 07_54_00 PM.png";
 import { GlassButton, GlassEffect, GlassFilter } from "@/components/ui/liquid-glass";
 
 export const Route = createFileRoute("/signup")({
@@ -43,10 +44,166 @@ function SignupPage() {
       <div className="pointer-events-none absolute left-[-4rem] top-40 size-52 rounded-full border-[34px] border-vermilion/8" />
       <div className="pointer-events-none absolute bottom-[-5rem] right-[-3rem] text-marigold/15"><Flower2 className="size-64" strokeWidth={0.7} /></div>
 
-      <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between">
-        <AanganBrand />
-        <Link to="/login" className="text-sm font-bold text-primary transition-colors hover:text-vermilion">प्रवेश</Link>
-      </header>
+      <header
+  className="
+    relative
+    z-20
+    mx-auto
+    w-full
+    max-w-7xl
+    px-0
+    pt-0
+    sm:px-2
+  "
+>
+  <div className="relative min-h-[150px] w-full">
+
+    {/* Logo - Top Left */}
+    <div className="absolute left-0 top-0">
+      <div
+        className="
+          inline-flex
+          rounded-[24px]
+          border
+          border-primary/10
+          bg-background/40
+          p-1.5
+          shadow-xl
+          backdrop-blur-md
+        "
+      >
+        <img
+          src={gurjarGaudLogo}
+          alt="श्री गुर्जर गौड़ ब्राह्मण नगर सभा, इन्दौर"
+          className="
+            h-24
+            w-24
+            rounded-[18px]
+            object-contain
+            sm:h-28
+            sm:w-28
+            lg:h-32
+            lg:w-32
+          "
+        />
+      </div>
+    </div>
+
+    {/* Center Header Content */}
+    <div
+      className="
+        mx-auto
+        w-full
+        max-w-3xl
+        px-28
+        text-center
+        sm:px-36
+        lg:px-40
+      "
+    >
+      {/* Mantra */}
+      <p
+        className="
+          font-display
+          text-sm
+          font-semibold
+          tracking-wide
+          text-vermilion
+          sm:text-base
+          lg:text-lg
+        "
+      >
+        ॥ ॐ तस्मै नमः गुरुगौतमायः ॥
+      </p>
+
+      {/* Organization */}
+      <h1
+        className="
+          mt-2
+          font-display
+          text-lg
+          font-bold
+          leading-tight
+          text-primary
+          sm:text-xl
+          lg:text-2xl
+        "
+      >
+        श्री गुर्जर गौड़ ब्राह्मण नगर सभा (रजि.), इन्दौर
+      </h1>
+
+      {/* Event */}
+      <p
+        className="
+          mt-2
+          font-display
+          text-base
+          font-semibold
+          leading-tight
+          text-primary
+          sm:text-lg
+          lg:text-xl
+        "
+      >
+        विवाह योग्य युवक-युवती परिचय सम्मेलन - 2026
+      </p>
+    </div>
+
+    {/* Navigation - Top Right */}
+    <nav
+      aria-label="मुख्य नेविगेशन"
+      className="
+        absolute
+        right-0
+        top-0
+        flex
+        items-center
+        gap-1
+        text-sm
+        font-semibold
+        sm:gap-2
+      "
+    >
+      <Link
+        to="/login"
+        className="
+          rounded-full
+          px-3
+          py-2
+          text-primary
+          transition
+          hover:bg-primary/5
+          sm:px-4
+          sm:py-2.5
+        "
+      >
+        प्रवेश
+      </Link>
+
+      <Link
+        to="/signup"
+        className="
+          rounded-full
+          border
+          border-primary/20
+          bg-background/40
+          px-4
+          py-2
+          text-primary
+          shadow-lg
+          backdrop-blur-md
+          transition
+          hover:bg-background/60
+          sm:px-5
+          sm:py-2.5
+        "
+      >
+        नया खाता
+      </Link>
+    </nav>
+
+  </div>
+</header>
 
       <section className="relative z-10 mx-auto flex max-w-6xl justify-center pb-10 pt-12 sm:pt-16">
         <GlassEffect className="w-full max-w-3xl cursor-default !rounded-2xl border border-background/70 bg-background/35 p-5 text-primary shadow-soft sm:p-9 lg:p-12">
