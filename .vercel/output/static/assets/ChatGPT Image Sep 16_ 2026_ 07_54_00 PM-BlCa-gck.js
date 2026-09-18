@@ -1,0 +1,1 @@
+var e=`/assets/ChatGPT%20Image%20Sep%2016_%202026_%2007_54_00%20PM-CVK0JG8q.png`;export{e as t};
